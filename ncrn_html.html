@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<!--
+Font-awesome icons ie github or twitter
+-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
+
+<!--
+Google fonts api stuff
+-->
+
+
+
+<title>Searching for Pathogens in Cancer Sequence Data</title>
+
+<script src="ncrn_html_files/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="ncrn_html_files/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="ncrn_html_files/typedarray-0.1/typedarray.min.js"></script>
+<script src="ncrn_html_files/jquery-1.11.3/jquery.min.js"></script>
+<link href="ncrn_html_files/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="ncrn_html_files/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="ncrn_html_files/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="ncrn_html_files/plotly-main-1.52.2/plotly-latest.min.js"></script>
+
+
+
+
+<style>
+@page {
+size: 45in 38in;
+margin: 0;
+padding: 0;
+}
+body {
+margin: 0;
+font-size: 45px;
+width: 45in;
+height: 38in;
+padding: 0;
+text-align: justify;
+font-family: Palatino;
+}
+.poster_wrap {
+width: 45in;
+height: 38in;
+padding: 0cm;
+}
+.title_container {
+width: 45in;
+height: calc(38in * 0.15);
+overflow: hidden;
+background-color: #0b4545;
+border: 0 solid #0b4545;
+}
+.logo_left {
+float: left;
+width: 10%;
+height: 100%;
+background-color: #0b4545;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.logo_right {
+float: right;
+width: 10%;
+height: 100%;
+background-color: #0b4545;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.poster_title {
+text-align: center;
+position: relative;
+float: left;
+width: 80%;
+height: 100%;
+color: #FFFFFF;
+top: 50%;
+transform: translateY(-50%);
+-webkit-transform: translateY(-50%);
+}
+#title {
+font-family: Palatino;
+}
+/* unvisited link */
+a:link {
+color: #cc0000;
+}
+.mybreak {
+  break-before: column;
+}
+/* visited link */
+a:visited {
+color: #cc0000;
+}
+
+/* mouse over link */
+a:hover {
+color: #cc0000;
+}
+
+/* selected link */
+a:active {
+color: #cc0000;
+}
+.poster_body {
+-webkit-column-count: 3; /* Chrome, Safari, Opera */
+-moz-column-count: 3; /* Firefox */
+column-count: 3;
+-webkit-column-fill: auto;
+-moz-column-fill: auto;
+column-fill: auto;
+-webkit-column-rule-width: 1mm;
+-moz-column-rule-width: 1mm;
+column-rule-width: 1mm;
+-webkit-column-rule-style: dashed;
+-moz-column-rule-style: dashed;
+column-rule-style: dashed;
+-webkit-column-rule-color: #0b4545;
+-moz-column-rule-color: #0b4545;
+column-rule-color: #0b4545;
+column-gap: 1em;
+padding-left: 0.5em;
+padding-right: 0.5em;
+height: 100%;
+color: #000000
+background-color: #ffffff;
+}
+.poster_title h1 {
+font-size: 75pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_body_wrap{
+width: calc(45in + 0 + 0);
+height: calc(38in * 0.83);
+padding-top: calc(38in * 0.005);
+padding-bottom: calc(38in * 0.01);
+background-color: #ffffff;
+}
+.poster_title h3 {
+color: #ffffff;
+font-size: 40pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_title h3 > sup {
+  font-size: 35pt;
+  margin-left: 0.02em;
+}
+.poster_title h5 {
+color: #FFFFFF;
+font-size: ;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+img {
+margin-top: 2cm;
+margin-bottom: 0;
+}
+.section {
+  padding: 0.2em;
+}
+.poster_body h1 {
+text-align: center;
+color: #FFFFFF;
+font-size: 65pt;
+border: 2mm solid #0b4545;
+background-color: #0b4545;
+border-radius: 4mm 0mm;
+margin-top: 2mm;
+margin-bottom: 2mm;
+font-weight: normal;
+}
+.poster_body h2 {
+color: #000000;
+font-size: 40pt;
+padding-left: 4mm;
+font-weight: normal;
+}
+.span {
+width: 200%;
+}
+/* center align leaflet map,
+from https://stackoverflow.com/questions/52112119/center-leaflet-in-a-rmarkdown-document */
+.html-widget {
+margin: auto;
+position: sticky;
+margin-top: 2cm;
+margin-bottom: 2cm;
+}
+.leaflet.html-widget.html-widget-static-bound.leaflet-container.leaflet-touch.leaflet-fade-anim.leaflet-grab.leaflet-touch-drag.leaflet-touch-zoom {
+position: sticky;
+width: 100%;
+}
+pre.sourceCode.r {
+background-color: #dddddd40;
+border-radius: 4mm;
+padding: 4mm;
+width: 75%;
+/* align-items: center; */
+margin: auto;
+padding-left: 2cm;
+}
+code.sourceCode.r{
+background-color: transparent;
+font-size: 20pt;
+border-radius: 2mm;
+}
+.caption {
+font-size: 25pt;
+}
+.table caption {
+font-size: 25pt;
+padding-bottom: 3mm;
+
+}
+code {
+font-size: 1em;
+font-family: monospace;
+background-color: #00808024;
+color: #0b4545;
+padding: 1.2mm;
+border-radius: 2mm;
+}
+.poster_title code {
+font-size: 1em;
+}
+table {
+font-size: 40px;
+margin: auto;
+border-top: 3px solid #666;
+border-bottom: 3px solid #666;
+}
+table thead th {
+border-bottom: 3px solid #ddd;
+}
+td {
+padding: 8px;
+}
+th {
+padding: 15px;
+}
+caption {
+margin-bottom: 10px;
+}
+.poster_body p {
+margin-right: 4mm;
+margin-left: 4mm;
+margin-top: 6mm;
+margin-bottom: 10mm;
+}
+.poster_body ol {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+#ul {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+.references p {
+font-size: 20pt;
+}
+.orcid img {
+  width: 1em;
+}
+</style>
+</head>
+<body>
+
+
+<div class="poster_wrap">
+<div class="title_container">
+<!-- Left Logo  -->
+<div class="logo_left">
+<img src= 'resources/bigC_logo.png' style="width: 80%">
+</div>
+<!-- Poster Title -->
+<div class= "poster_title">
+<h1 id="title">Searching for Pathogens in Cancer Sequence Data</h1>
+<h3 id="author"><strong>Gihawi, A.</strong><sup>1, <a class="orcid" href="https://orcid.org/0000-0002-3676-5561"><img src="https://raw.githubusercontent.com/brentthorne/posterdown/master/images/orcid.jpg"></a></sup>, Hurst, R.<sup>1</sup>, Leggett, R.M.<sup>2, <a class="orcid" href="https://orcid.org/0000-0003-3044-4297"><img src="https://raw.githubusercontent.com/brentthorne/posterdown/master/images/orcid.jpg"></a></sup>, Cooper, C.S.<sup>1, <a class="orcid" href="https://orcid.org/0000-0003-2013-8042"><img src="https://raw.githubusercontent.com/brentthorne/posterdown/master/images/orcid.jpg"></a></sup>, Brewer, D.S.<sup>1,2, <a class="orcid" href="https://orcid.org/0000-0003-4753-9794"><img src="https://raw.githubusercontent.com/brentthorne/posterdown/master/images/orcid.jpg"></a></sup>, Genomics England Research Consortium<sup>3</sup></h3><br>
+<h5 id="affiliation"><sup>1</sup> Bob Champion Research and Education Building, University of East Anglia, Norwich, UK<br> <sup>2</sup> Earlham Institute, Norwich, UK<br> <sup>3</sup> Genomics England, London, UK</h5>
+</div>
+<!-- Right Logo  -->
+<div class="logo_right">
+<img src=resources/uea_gel.png style="width: 80%">
+</div>
+</div>
+
+<div class='poster_body_wrap'>
+<div class='poster_body'>
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>The association of <em>H. pylori</em> with gastric adenocarcinomacarcinoma<span class="citation">[<a href="#ref-RN102">1</a>]</span> and the successful Human papillomavirus (HPV) vaccine, estimated to prevent ≤80% of cervical cancer cases<span class="citation">[<a href="#ref-Johannes2011">2</a>, <a href="#ref-Crosbie2013">3</a>]</span> attest to the prominent role that pathogens play in cancer.</p>
+<p>When cancer tissue is sequenced, any microorganisms present in the sample can be incidentally sequenced simultaneously<span class="citation">[<a href="#ref-RN455">4</a>]</span>. The 100,000 genome project data therefore provides a rich resource for detecting microorganisms and linking them to disease.</p>
+<p>We previously benchmarked software to devise the best approach for cancer whole genome sequence metagenomics. The top performing pipelines are provided in a tool called <a href="https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA">SEPATH</a><span class="citation">[<a href="#ref-RN454">5</a>]</span> which performs the following:</p>
+<ul>
+<li>Extracts unmapped reads from BAM files</li>
+<li>Quality trimming &amp; human read removal</li>
+<li>Metagenomic classification - Kraken/mOTUs2<span class="citation">[<a href="#ref-RN72">6</a>, <a href="#ref-RN391">7</a>]</span></li>
+</ul>
+</div>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<p><a href="https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA">SEPATH</a> is currently being applied to all samples from within the <a href="https://www.genomicsengland.co.uk/about-genomics-england/the-100000-genomes-project/">100,00 genomes project</a> to search for evidence of and associations between pathogens and disease. The resulting non-human reads were pooled by cancer type and subject to metagenomic assembly MEGAHIT<span class="citation">[<a href="#ref-RN269">8</a>]</span>. The resulting contigs were classified with Diamond<span class="citation">[<a href="#ref-RN204">9</a>]</span> using a database built from NCBI genomes available <a href="ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/">here</a>.</p>
+<p>So far we have sifted through in excess of <span class="math inline">\(2.25\times10^{14}\)</span> base pairs from &gt;10,000 tumour samples to search for evidence of pathogens. This is set to increase as more sequence data is released (figure <a href="#fig:gelrelease">1</a>) and as we search through the rare disease cohort.</p>
+<div class="figure" style="text-align: center"><span id="fig:gelrelease"></span>
+<img src="ncrn_html_files/figure-html/gelrelease-1.png" alt="The release of tumour sequence data from Genomics England 100,000 Genomes Project. SEPATH has been ran on data up to version 6." width="90%" />
+<p class="caption">
+Figure 1: The release of tumour sequence data from Genomics England 100,000 Genomes Project. SEPATH has been ran on data up to version 6.
+</p>
+</div>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<p>All Potential contaminants according to Salter <em>et al.</em><span class="citation">[<a href="#ref-Salter2014">10</a>]</span> and any mammalian classifications were removed from further investigation.</p>
+<div id="sepath-using-kraken" class="section level2">
+<h2><strong>SEPATH using Kraken</strong></h2>
+<p>We filtered samples to retain only those that were PCR-free, fresh tissue tumours. Classifications with fewer than 20 reads were disregarded. Here we report on the top 20 most frequently occuring genera within each cancer type. Although some environmental contaminants likely remain, some pathogens have emerged that have previously been suspected to contribute to tumorigenesis such as <em>Bacteroides</em>, <em>Prevotella</em> and <em>Fusobacterium</em><span class="citation">[<a href="#ref-Shang2018">11</a>]</span>.</p>
+<div class="figure"><span id="fig:gelkraken"></span>
+<div id="htmlwidget-60103d85442b28511e99" style="width:100%;height:672px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-60103d85442b28511e99">{"x":{"visdat":{"be69550199ea":["function () ","plotlyVisDat"],"be695c1ffd3f":["function () ","data"],"be69382b6259":["function () ","data"],"be692845ddde":["function () ","data"],"be692e92e7a":["function () ","data"],"be691aea4d14":["function () ","data"],"be69c6a69da":["function () ","data"],"be691e4b6d94":["function () ","data"],"be696a071f15":["function () ","data"],"be697989d214":["function () ","data"],"be69473f5d62":["function () ","data"],"be69110bf179":["function () ","data"],"be69271a47ad":["function () ","data"],"be692e57c2e9":["function () ","data"],"be693bd66c4":["function () ","data"],"be697a5cfc7":["function () ","data"],"be6916ec15bd":["function () ","data"],"be696587370c":["function () ","data"],"be69102f28e7":["function () ","data"],"be698265dfe":["function () ","data"]},"cur_data":"be698265dfe","attrs":{"be69550199ea":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"},"be695c1ffd3f":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":true,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69382b6259":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be692845ddde":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be692e92e7a":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be691aea4d14":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69c6a69da":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be691e4b6d94":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be696a071f15":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be697989d214":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69473f5d62":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69110bf179":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","x":{},"y":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69271a47ad":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be692e57c2e9":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be693bd66c4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be697a5cfc7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be6916ec15bd":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be696587370c":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69102f28e7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be698265dfe":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"yaxis":{"domain":[0,1],"automargin":true,"title":"Genus","size":20,"tickfont":{"size":18}},"xaxis":{"domain":[0,1],"automargin":true,"title":"Number of Contigs","size":20,"tickfont":{"size":18}},"showlegend":false,"updatemenus":[{"xanchor":"right","yanchor":"bottom","buttons":[{"method":"restyle","args":["visible",[false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"All Cancers"},{"method":"restyle","args":["visible",[false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Bladder"},{"method":"restyle","args":["visible",[false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Breast"},{"method":"restyle","args":["visible",[false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Childhood"},{"method":"restyle","args":["visible",[false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Endocrine"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Endometrial"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Glioma"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false]],"label":"Hepatopancreatobiliary"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false]],"label":"Lung"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false]],"label":"Melanoma"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false]],"label":"Nasopharyngeal"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false]],"label":"Oral"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false]],"label":"Ovarian"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false]],"label":"Prostate"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false]],"label":"Renal"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false]],"label":"Sarcoma"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false]],"label":"Sinonasal"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false]],"label":"Testicular"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true]],"label":"Upper Gastrointestinal"}]}],"hovermode":"closest"},"source":"A","config":{"showSendToCloud":false},"data":[{"type":"bar","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Achromobacter","Bacteroides","Enterococcus","Staphylococcus","Hammondia","Prevotella","Fusobacterium","Blautia","Alistipes","Parabacteroides","Clostridium","Lachnoclostridium","Faecalibacterium","Dorea","Eubacterium","Odoribacter","Veillonella","Bifidobacterium","Haemophilus","Coprococcus"],"x":[2999,2712,2646,2437,2419,2137,2007,1860,1845,1814,1810,1779,1775,1699,1664,1603,1593,1588,1581,1574],"visible":true,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Achromobacter","Staphylococcus","Hammondia","Enterococcus","Prevotella","Actinotignum","Bacteroides","Actinomyces","Peptoniphilus","Moraxella","Anaerococcus","Gardnerella","Propionimicrobium","Finegoldia","Campylobacter","Veillonella","Rothia","Fusobacterium","Porphyromonas","Aerococcus"],"x":[121,89,53,48,43,33,28,27,27,25,21,20,18,17,16,15,14,14,14,13],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Achromobacter","Hammondia","Staphylococcus","Enterococcus","Bacteroides","Moraxella","Chlamydia","Prevotella","Fusobacterium","Rothia","Actinomyces","Alistipes","Blautia","Plasmodium","Cutibacterium","Haemophilus","Xenophilus","Veillonella","Faecalibacterium","Cloacibacterium"],"x":[558,483,446,318,213,146,88,78,61,57,51,51,48,48,47,44,41,39,36,36],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Hammondia","Achromobacter","Staphylococcus","Enterococcus","Roseolovirus","Moraxella","Actinomyces","Rothia","Rudaea","Prevotella","Haemophilus","Veillonella","Alcaligenes","Gemella","Xenophilus","Peptoniphilus","Finegoldia","Porphyromonas","Neisseria","Anaerococcus"],"x":[51,37,36,8,8,7,6,6,6,5,4,4,4,4,3,3,3,3,3,2],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Staphylococcus","Achromobacter","Moraxella","Prevotella","Xenophilus","Alcanivorax","Calothrix","Castellaniella","Chitinophaga","Lactococcus","Leuconostoc","Pantoea","Pseudohongiella","Thioalkalivibrio","Ab18virus","Acanthamoeba","Acetanaerobacterium","Acetitomaculum","Acetivibrio","Acetoanaerobium"],"x":[4,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Hammondia","Enterococcus","Achromobacter","Staphylococcus","Bacteroides","Prevotella","Fusobacterium","Peptoniphilus","Moraxella","Porphyromonas","Xenophilus","Actinomyces","Chlamydia","Anaerococcus","Gardnerella","Lactobacillus","Rothia","Nocardia","Penicillium","Alistipes"],"x":[118,95,85,79,74,61,29,27,26,25,24,21,20,19,18,15,14,14,14,12],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Achromobacter","Hammondia","Enterococcus","Staphylococcus","Bacteroides","Moraxella","Prevotella","Actinomyces","Xenophilus","Haemophilus","Alistipes","Parabacteroides","Rothia","Veillonella","Faecalibacterium","Gordonia","Paraburkholderia","Roseolovirus","Cutibacterium","Fusobacterium"],"x":[138,99,63,55,19,16,14,10,10,8,7,7,7,7,6,6,6,6,5,5],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Achromobacter","Staphylococcus","Enterococcus","Bacteroides","Veillonella","Fusobacterium","Prevotella","Roseolovirus","Hammondia","Haemophilus","Bifidobacterium","Klebsiella","Clostridium","Citrobacter","Dialister","Actinomyces","Faecalibacterium","Blautia","Alistipes","Campylobacter"],"x":[170,55,50,49,42,41,39,39,32,32,27,27,23,20,19,18,16,16,15,15],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Hammondia","Staphylococcus","Achromobacter","Enterococcus","Bacteroides","Moraxella","Prevotella","Haemophilus","Actinomyces","Xenophilus","Rothia","Fusobacterium","Veillonella","Chlamydia","Cloacibacterium","Roseolovirus","Lactobacillus","Streptomyces","Cutibacterium","Penicillium"],"x":[357,272,247,191,96,86,75,72,56,48,48,43,41,38,37,33,33,28,26,26],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Achromobacter","Staphylococcus","Hammondia","Bacteroides","Enterococcus","Prevotella","Fusobacterium","Moraxella","Nocardia","Veillonella","Actinomyces","Peptoniphilus","Anaerococcus","Xenophilus","Rothia","Campylobacter","Parvimonas","Alistipes","Blautia","Clostridium"],"x":[105,56,47,39,34,21,17,15,15,12,11,11,11,10,10,10,10,9,9,9],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","x":["Achromobacter","Staphylococcus","Bacteroides","Moraxella","Prevotella","Rothia","Fusobacterium","Anaerococcus","Campylobacter","Dialister","Parvimonas","Alloprevotella","Atopobium","Capnocytophaga","Leptotrichia","Peptostreptococcus","Selenomonas","Solobacterium","Tannerella","Treponema"],"y":[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"visible":false,"opacity":0.7,"marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Prevotella","Fusobacterium","Veillonella","Actinomyces","Gemella","Haemophilus","Rothia","Selenomonas","Leptotrichia","Neisseria","Campylobacter","Capnocytophaga","Parvimonas","Treponema","Porphyromonas","Tannerella","Dialister","Alloprevotella","Solobacterium","Granulicatella"],"x":[125,118,116,111,110,108,107,103,99,97,96,96,91,90,87,83,82,81,81,80],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Hammondia","Staphylococcus","Achromobacter","Bacteroides","Enterococcus","Moraxella","Prevotella","Haemophilus","Rothia","Fusobacterium","Actinomyces","Xenophilus","Alistipes","Faecalibacterium","Blautia","Parabacteroides","Clostridium","Lachnoclostridium","Roseburia","Penicillium"],"x":[109,85,69,68,67,27,24,23,19,18,15,15,14,14,14,12,11,10,10,10],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Staphylococcus","Hammondia","Moraxella","Enterococcus","Bacteroides","Achromobacter","Cloacibacterium","Prevotella","Rothia","Actinomyces","Haemophilus","Bifidobacterium","Pandoraea","Veillonella","Cutibacterium","Chlamydia","Aeromonas","Dermacoccus","Blautia","Arcobacter"],"x":[111,96,66,55,40,39,35,32,27,25,16,14,14,13,13,13,13,12,11,11],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Achromobacter","Staphylococcus","Hammondia","Enterococcus","Bacteroides","Moraxella","Prevotella","Rothia","Cutibacterium","Actinomyces","Roseolovirus","Cloacibacterium","Haemophilus","Fusobacterium","Nocardia","Xenophilus","Alistipes","Bifidobacterium","Tepidimonas","Blautia"],"x":[267,199,190,150,92,89,41,37,37,36,28,28,26,24,20,19,18,18,18,17],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Staphylococcus","Moraxella","Achromobacter","Cloacibacterium","Enterococcus","Bacteroides","Hammondia","Prevotella","Cutibacterium","Rothia","Actinomyces","Haemophilus","Anaerococcus","Veillonella","Finegoldia","Porphyromonas","Sphingobacterium","Citrobacter","Fusobacterium","Klebsiella"],"x":[356,236,204,162,90,86,77,72,70,68,61,51,38,33,32,29,29,26,25,25],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Haemophilus","Prevotella","Achromobacter","Rothia","Veillonella","Fusobacterium","Bacteroides","Xenophilus","Neisseria","Alcanivorax","Pseudohongiella","Thioalkalivibrio","Capnocytophaga","Leptotrichia","Immundisolibacter","Ramlibacter","Actinomyces","Alloprevotella","Atopobium","Aggregatibacter"],"x":[6,5,4,4,4,4,3,3,3,3,3,3,3,3,3,3,2,2,2,2],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Enterococcus","Achromobacter","Staphylococcus","Hammondia","Bacteroides","Nocardia","Meiothermus","Actinomyces","Rothia","Veillonella","Caldimonas","Haemophilus","Blautia","Anoxybacillus","Brachymonas","Cohnella","Desulfococcus","Fontimonas","Luteimonas","Lysobacter"],"x":[11,9,8,6,5,4,4,3,3,3,3,2,2,2,2,2,2,2,2,2],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Prevotella","Veillonella","Haemophilus","Rothia","Fusobacterium","Actinomyces","Gemella","Neisseria","Achromobacter","Leptotrichia","Selenomonas","Campylobacter","Lactobacillus","Granulicatella","Parvimonas","Solobacterium","Bifidobacterium","Bacteroides","Dialister","Capnocytophaga"],"x":[123,117,102,99,92,91,78,76,72,71,55,54,54,50,49,47,44,42,41,41],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p class="caption">
+Figure 2: Results from the 100,000 Genomes Project. Classifications were obtained by using SEPATH with Kraken. Results are displayed by cancer type.
+</p>
+</div>
+</div>
+<div id="classification-of-assembled-contigs" class="section level2">
+<h2><strong>Classification of Assembled Contigs</strong></h2>
+<p>Although reads with any similarity to the human genome have been removed prior to assembly, we see hundreds of thousands of assembled genomic fragments accross the entire dataset for a variety of genera. The most common of which in the whole dataset are for <em>Prevotella</em>, <em>Bacteroides</em>, <em>Treponema</em> and <em>Fusobacterium</em>.</p>
+<div id="htmlwidget-7c29e1d8860a5e760add" style="width:100%;height:672px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7c29e1d8860a5e760add">{"x":{"visdat":{"be6950d077c3":["function () ","plotlyVisDat"],"be692666cca8":["function () ","data"],"be6927063d4a":["function () ","data"],"be69aa1d94a":["function () ","data"],"be697c08eba":["function () ","data"],"be6972da594f":["function () ","data"],"be695d1d8c71":["function () ","data"],"be693eef7e79":["function () ","data"],"be695d585a36":["function () ","data"],"be69538abf1a":["function () ","data"],"be693a086ecf":["function () ","data"],"be697fa2f5cc":["function () ","data"],"be6923b7658b":["function () ","data"],"be695d6b9afe":["function () ","data"],"be69438cc99c":["function () ","data"],"be6950084369":["function () ","data"],"be694e81cb8b":["function () ","data"],"be692b5a3af1":["function () ","data"],"be6930d3ba73":["function () ","data"],"be691c75ed10":["function () ","data"]},"cur_data":"be691c75ed10","attrs":{"be6950d077c3":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"},"be692666cca8":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":true,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be6927063d4a":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69aa1d94a":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be697c08eba":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be6972da594f":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be695d1d8c71":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be693eef7e79":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be695d585a36":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69538abf1a":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be693a086ecf":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be697fa2f5cc":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","x":{},"y":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be6923b7658b":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be695d6b9afe":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be69438cc99c":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be6950084369":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be694e81cb8b":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be692b5a3af1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be6930d3ba73":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true},"be691c75ed10":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar","y":{},"x":{},"visible":false,"color":["darkorchid4"],"opacity":0.7,"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"yaxis":{"domain":[0,1],"automargin":true,"title":"Genus","size":20,"tickfont":{"size":18}},"xaxis":{"domain":[0,1],"automargin":true,"title":"Number of Contigs","size":20,"tickfont":{"size":18}},"showlegend":false,"updatemenus":[{"xanchor":"right","yanchor":"bottom","buttons":[{"method":"restyle","args":["visible",[false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"All Cancers"},{"method":"restyle","args":["visible",[false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Bladder"},{"method":"restyle","args":["visible",[false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Breast"},{"method":"restyle","args":["visible",[false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Childhood"},{"method":"restyle","args":["visible",[false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Endocrine"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Endometrial"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false]],"label":"Glioma"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false]],"label":"Hepatopancreatobiliary"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false]],"label":"Lung"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false]],"label":"Melanoma"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false]],"label":"Nasopharyngeal"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false]],"label":"Oral"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false]],"label":"Ovarian"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false]],"label":"Prostate"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false]],"label":"Renal"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false]],"label":"Sarcoma"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false]],"label":"Sinonasal"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false]],"label":"Testicular"},{"method":"restyle","args":["visible",[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true]],"label":"Upper Gastrointestinal"}]}],"hovermode":"closest"},"source":"A","config":{"showSendToCloud":false},"data":[{"type":"bar","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Prevotella","Bacteroides","Treponema","Fusobacterium","Selenomonas","Candidatus","Plasmodium","Porphyromonas","Rudaea","Campylobacter","Achromobacter","Clostridium","Staphylococcus","Burkholderiales","Bradyrhizobiaceae","unclassified","Veillonella","Leptotrichia","Actinomyces","Mycobacteroides"],"x":[153966,130777,65754,58792,47973,47960,44341,41555,37504,36840,35509,35162,34796,33217,32684,30945,30907,30562,29577,27943],"visible":true,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Anaerococcus","Prevotella","Peptoniphilus","Achromobacter","Rudaea","Campylobacter","Actinotignum","Finegoldia","Plasmodium","unclassified","Vulcaniibacterium","Veillonella","Varibaculum","Cutibacterium","Gleimia","Lactobacillus","Enterococcus","Alloscardovia","Aerococcus","Tepidimonas"],"x":[10775,8312,6154,5928,5082,4818,4418,4362,3439,3342,3228,2442,2335,2208,1776,1735,1419,1371,1309,1281],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bacteroides","Candidatus","Malassezia","Burkholderiales","Plasmodium","Staphylococcus","Rhizobiales","Mycobacterium","Meiothermus","Bradyrhizobiaceae","Betaproteobacteria","Asanoa","Agrobacterium","Hyphomicrobium","Mycobacteroides","Leifsonia","Dechloromonas","Gordonia","Mycolicibacterium","unclassified"],"x":[8661,8399,7969,7718,7080,6871,6403,6023,5317,4736,3979,3557,3449,3397,3235,3070,3042,3032,2763,2755],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bradyrhizobiaceae","Rudaea","Plasmodium","Fusobacterium","Cutibacterium","Sulfolobus","Virgibacillus","Mycobacterium","Achromobacter","Mycobacteroides","Enterobius","Mycolicibacterium","Burkholderiales","Staphylococcus","Shewanella","Roseolovirus","Candidatus","Porphyromonas","Leuconostoc","Varicellovirus"],"x":[3893,3667,2786,2188,824,768,383,362,327,262,140,127,116,107,103,97,84,78,65,60],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Emticicia","Plasmodium","Rickettsiales","Alphaproteobacteria","Candidatus","Sulfolobus","Thauera","Trichinella","Proteobacteria","Elizabethkingia","Tanacetum","Rickettsia","Rhodospirillaceae","Virgibacillus","Gammaproteobacteria","Burkholderiales","Sphingobacteriales","unclassified","Klebsiella","Citrobacter"],"x":[3675,462,234,218,163,140,88,74,60,59,59,50,41,40,35,33,33,30,30,29],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Mycobacteroides","Nocardia","unclassified","Penicillium","Meiothermus","Chitinophagaceae","Mycobacterium","Cutibacterium","Bodo","Sediminibacterium","Plasmodium","Alternaria","Mycolicibacterium","Peptoniphilus","Aspergillus","Lachnospiraceae","Bradyrhizobiaceae","Candidatus","Virgibacillus","Lactobacillus"],"x":[4959,4569,3671,3484,3451,2468,2184,2074,1851,1812,1763,1749,1144,947,803,505,467,421,337,287],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Plasmodium","Achromobacter","Candidatus","Bradyrhizobiaceae","Burkholderiales","Bodo","Chitinophagaceae","unclassified","Sediminibacterium","Tepidimonas","Campylobacter","Chlamydiales","Vulcaniibacterium","Lawsonella","Emticicia","Porphyromonas","Rudaea","Moraxella","Chlamydiae","Cutibacterium"],"x":[4247,3969,3571,3360,3019,3009,2441,1946,1881,1812,1573,1417,1020,894,808,759,738,695,686,638],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bacteroides","Prevotella","Fusobacterium","Achromobacter","Clostridium","Rudaea","Ruminococcus","Klebsiella","Oscillibacter","Faecalibacterium","Plasmodium","Enterococcus","Firmicutes","unclassified","Veillonella","Selenomonas","Clostridiales","Haemophilus","Treponema","Dialister"],"x":[22309,13358,7487,6476,5310,5282,4143,3643,3456,3373,3329,3195,3170,2780,2754,2736,2664,2621,2190,2163],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bacteroides","Achromobacter","Candidatus","Staphylococcus","Burkholderiales","Fusobacterium","Methylorubrum","Bodo","Prevotella","Malassezia","Bradyrhizobiaceae","Mycobacteroides","unclassified","Veillonella","Mycolicibacterium","Exiguobacterium","Nocardia","Rhizobiales","Youhaiella","Starkeya"],"x":[14546,8053,7511,5488,5294,5136,3582,3512,3401,3322,3255,2978,2364,2343,2265,2225,2053,2046,1967,1921],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Prevotella","Treponema","Rudaea","Emticicia","Fusobacterium","Selenomonas","Mogibacterium","Campylobacter","Dialister","Fretibacterium","Bacteroides","Veillonella","Tannerella","Olsenella","Shuttleworthia","Peptoniphilus","Haemophilus","Eggerthia","Mycobacteroides","Plasmodium"],"x":[7988,6308,5496,4366,3947,3573,2704,2479,2149,1997,1871,1850,1774,1768,1692,1595,1460,1442,1362,1328],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","x":["Fusobacterium","Prevotella","Plasmodium","Bacteroides","Sulfolobus","Trichinella","Solobacterium","Virgibacillus","Staphylococcus","Porphyromonas","Enterobius","Mycobacterium","Parvimonas","Enterococcus","Mycoplasma","Chlamydia","Leuconostoc","Alphapapillomavirus","Selenomonas","Klebsiella","Cercocebus","Neisseria"],"y":[1090,684,545,110,108,57,43,26,14,12,12,9,9,8,8,7,6,6,5,5,5,5],"visible":false,"opacity":0.7,"marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Prevotella","Treponema","Selenomonas","Actinomyces","Trichomonas","Capnocytophaga","Leptotrichia","Fusobacterium","Campylobacter","Porphyromonas","Neisseria","Haemophilus","Veillonella","Lachnospiraceae","Rothia","Alloprevotella","Gemella","Lachnoanaerobaculum","Catonella","Oribacterium"],"x":[74674,42882,30679,26583,26115,24220,24177,22941,22262,20628,14862,13196,12394,11247,10126,9880,9544,9182,8824,8472],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bacteroides","Burkholderiales","Plasmodium","Mycolicibacterium","Effusibacillus","Fusobacterium","Candidatus","Staphylococcus","Hyphomicrobium","Mycobacterium","Mycobacteroides","Vulcaniibacterium","Bradyrhizobiaceae","Cutibacterium","Malassezia","Alishewanella","Nocardia","unclassified","Porphyromonas","Meiothermus"],"x":[8477,3747,3501,3174,2188,2161,1989,1864,1837,1622,1474,1459,1304,1284,1201,1145,1073,967,931,872],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bradyrhizobiaceae","Methylorubrum","Candidatus","Mycobacteroides","Burkholderiales","Mycolicibacterium","Pannonibacter","Plasmodium","Bacteroides","Mycobacterium","Malassezia","Staphylococcus","Tepidimonas","Pelagibacterium","Nocardia","Prevotella","Vulcaniibacterium","Porphyrobacter","Dialister","Fusobacterium"],"x":[7476,6629,5483,5066,4944,4821,4548,4478,4301,3878,3565,3296,3166,2777,2652,2425,2359,2248,2020,1829],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bacteroides","Clostridium","Prevotella","Porphyromonas","Candidatus","Malassezia","Achromobacter","Bradyrhizobiaceae","Tepidimonas","Plasmodium","Clostridiales","Staphylococcus","Vulcaniibacterium","Roseburia","Fusobacterium","Emticicia","Faecalibacterium","Mycobacteroides","Butyricimonas","Enterococcus"],"x":[24069,14082,11170,6313,6230,6114,6061,6052,5827,5761,5607,5376,4914,4783,4632,4487,4100,3846,3678,3642],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Bacteroides","Prevotella","Staphylococcus","Peptoniphilus","Anaerococcus","Faecalibacterium","Porphyromonas","Parabacteroides","Rudaea","Nocardia","Candidatus","Veillonella","Burkholderiales","unclassified","Roseburia","Emticicia","Citrobacter","Vulcaniibacterium","Alistipes","Clostridium"],"x":[35434,16428,7615,7410,6999,6564,6471,6237,5126,5113,4625,4527,4299,4239,4221,4133,3829,3653,3545,3123],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Treponema","Prevotella","Campylobacter","Fusobacterium","Haemophilus","Moraxella","Alloprevotella","Selenomonas","Parvimonas","Neisseria","Eikenella","Gemella","Bodo","Fretibacterium","Candidatus","Peptostreptococcus","Plasmodium","Porphyromonas","Filifactor","Peptoanaerobacter"],"x":[4592,2216,2174,1864,1749,1678,1631,1402,1398,1392,1303,1123,902,619,470,469,435,412,386,365],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Plasmodium","Sulfolobus","Trichinella","Virgibacillus","Staphylococcus","Leuconostoc","Roseolovirus","Chlamydia","Enterococcus","Mycobacterium","Enterobius","Tetrasphaera","Lactobacillus","Butyrivibrio","Klebsiella","Cercocebus","Rhinopithecus","Vibrio","Campylobacter","Bifidobacterium","Pediococcus","Shigella"],"x":[669,124,114,24,18,13,8,8,7,7,6,6,5,4,3,3,3,3,2,2,2,2],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"bar","y":["Prevotella","Treponema","Clostridium","Selenomonas","Leptotrichia","Lactobacillus","Fusobacterium","Veillonella","Effusibacillus","Neisseria","Bacteroides","Haemophilus","Hafnia","Mycobacteroides","Rothia","Peptoanaerobacter","Catonella","Parvimonas","Lachnospiraceae","Solobacterium"],"x":[9442,7728,5841,5654,4416,3876,3386,3178,2781,2758,2698,2323,2315,2271,2134,1909,1754,1543,1520,1406],"visible":false,"opacity":0.7,"orientation":"h","marker":{"color":"rgba(104,34,139,1)","line":{"color":"rgba(104,34,139,1)"}},"textfont":{"color":"rgba(104,34,139,1)"},"error_y":{"color":"rgba(104,34,139,1)"},"error_x":{"color":"rgba(104,34,139,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>Although the data overall is sparse and rife with potential contaminants, there are a range of interesting genera being reported accross cancer types in the Genomics England dataset by both SEPATH and by investigating metagenomic assembly of contigs. Some of these genera have previously been suggested to contribute to tumourigenesis.</p>
+<p>Despite using machine learning efforts to refine lists of informative taxa, our efforts so far have not been able to identify any form of obvious structure by cancer type. This is contradictory to recent publications and will be investigated further.</p>
+</div>
+<div id="future-directions" class="section level1">
+<h1>Future Directions</h1>
+<ul>
+<li>This data will be interrogated further for any links with metadata.</li>
+<li>The raw quality-trimmed and non-human reads have been mapped back to the contigs and this will be assessed as a second layer of information.</li>
+<li>These contigs will be subject to functional analysis to investigate the functional potential of pathogens that are being detected.</li>
+</ul>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-RN102">
+<p>1. Plummer M, Martel C de, Vignat J, Ferlay J, Bray F, Franceschi S. Global burden of cancers attributable to infections in 2012: A synthetic analysis. The Lancet Global Health. 2016;4:e609–16.</p>
+</div>
+<div id="ref-Johannes2011">
+<p>2. Bogaards JA, Coupe VMH, Xiridou M, Meijer CJLM, Wallinga J, Berkhof J. Long-term impact of human papillomavirus vaccination on infection rates, cervical abnormalities, and cancer incidence. Epidemiology. 2011;22:505–15. <a href="http://www.jstor.org/stable/23047685">http://www.jstor.org/stable/23047685</a>.</p>
+</div>
+<div id="ref-Crosbie2013">
+<p>3. Crosbie EJ, Einstein MH, Franceschi S, Kitchener HC. Human papillomavirus and cervical cancer. The Lancet. 2013;382:889–99. doi:<a href="https://doi.org/10.1016/s0140-6736(13)60022-7">10.1016/s0140-6736(13)60022-7</a>.</p>
+</div>
+<div id="ref-RN455">
+<p>4. Magiorkinis G, Matthews PC, Wallace SE, Jeffery K, Dunbar K, Tedder R, et al. Potential for diagnosis of infectious disease from the 100,000 genomes project metagenomic dataset: Recommendations for reporting results. Wellcome Open Research. 2019;4.</p>
+</div>
+<div id="ref-RN454">
+<p>5. Gihawi A, Rallapalli G, Hurst R, Cooper CS, Leggett RM, Brewer DS. SEPATH: Benchmarking the search for pathogens in human tissue whole genome sequence data leads to template pipelines. Genome Biol. 2019;20:208. doi:<a href="https://doi.org/10.1186/s13059-019-1819-8">10.1186/s13059-019-1819-8</a>.</p>
+</div>
+<div id="ref-RN72">
+<p>6. Wood D, Salzberg S. Kraken - ultrafast metagenomic sequence classification using exact alignments. Genome Biol. 2014;15.</p>
+</div>
+<div id="ref-RN391">
+<p>7. Milanese A, Mende DR, Paoli L, Salazar G, Ruscheweyh HJ, Cuenca M, et al. Microbial abundance, activity and population genomic profiling with mOTUs2. Nat Commun. 2019;10:1014. doi:<a href="https://doi.org/10.1038/s41467-019-08844-4">10.1038/s41467-019-08844-4</a>.</p>
+</div>
+<div id="ref-RN269">
+<p>8. Li D, Liu CM, Luo R, Sadakane K, Lam TW. MEGAHIT: An ultra-fast single-node solution for large and complex metagenomics assembly via succinct de bruijn graph. Bioinformatics. 2015;31:1674–6. doi:<a href="https://doi.org/10.1093/bioinformatics/btv033">10.1093/bioinformatics/btv033</a>.</p>
+</div>
+<div id="ref-RN204">
+<p>9. Buchfink B, Xie C, Huson DH. Fast and sensitive protein alignment using diamond. Nature Methods. 2015;12:59–60.</p>
+</div>
+<div id="ref-Salter2014">
+<p>10. Salter SJ, Cox MJ, Turek EM, Calus ST, Cookson WO, Moffatt MF, et al. Reagent and laboratory contamination can critically impact sequence-based microbiome analyses. BMC Biology. 2014;12. doi:<a href="https://doi.org/10.1186/s12915-014-0087-z">10.1186/s12915-014-0087-z</a>.</p>
+</div>
+<div id="ref-Shang2018">
+<p>11. Shang F-M, Liu H-L. Fusobacterium nucleatum and colorectal cancer: A review. World Journal of Gastrointestinal Oncology. 2018;10:71–81. doi:<a href="https://doi.org/10.4251/wjgo.v10.i3.71">10.4251/wjgo.v10.i3.71</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+var script = document.createElement("script");
+script.type = "text/javascript";
+var src = "true";
+if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+if (location.protocol !== "file:" && /^https?:/.test(src))
+src = src.replace(/^https?:/, '');
+script.src = src;
+document.getElementsByTagName("head")[0].appendChild(script);
+})();
+</script>
+
+
+</body>
+</html>

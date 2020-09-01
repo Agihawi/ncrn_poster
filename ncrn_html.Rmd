@@ -1,0 +1,851 @@
+---
+title: Searching for Pathogens in Cancer Sequence Data
+author:
+  - name: '**Gihawi, A.**'
+    affil: 1
+    main: true
+    orcid: '0000-0002-3676-5561'
+    twitter: AbrahamGihawi 
+    email: A.Gihawi@uea.ac.uk
+  - name: Hurst, R.
+    affil: 1
+  - name: Leggett, R.M.
+    affil: 2
+    orcid: '0000-0003-3044-4297'
+  - name: Cooper, C.S.
+    affil: 1
+    orcid: '0000-0003-2013-8042'
+  - name: Brewer, D.S.
+    affil: 1,2
+    orcid: '0000-0003-4753-9794'
+  - name: Genomics England Research Consortium
+    affil: 3
+affiliation:
+  - num: 1
+    address: Bob Champion Research and Education Building, University of East Anglia, Norwich, UK
+  - num: 2
+    address: Earlham Institute, Norwich, UK
+  - num: 3
+    address: Genomics England, London, UK
+column_numbers: 3
+logoright_name: "resources/uea_gel.png"
+logoleft_name: "resources/bigC_logo.png"
+output: 
+  posterdown::posterdown_html:
+    self_contained: false
+bibliography: references.bib
+csl: biomed-central.csl
+link-citations: true
+poster_height: "38in" #38in
+poster_width: "45in" #45in
+title_textsize: "75pt"
+author_textsize: "40pt"
+affiliation_textsize: "40pt"
+bibliography_textsize: "12pt"
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+library(ggpubr)
+library(gganimate)
+library(plotly)
+
+# ABSTRACT
+# It is estimated that infection accounts for 15% of all cancers globally. The involvement of H. pylori in over 90% of gastric noncardia adenocarcinoma and the role of Human Papillomavirus in cervical tumorigenesis are testament to the prominent role that pathogens play in cancer. As we transition into an era of genomic medicine, it is becoming increasingly possible to characterise the tumour-pathogen landscape by interrogating high-throughput sequencing data.
+# 
+# Here, we evaluate computational approaches to identify the constituent taxa within human high-throughput sequence data. We have produced the top performing approaches into a pipeline (SEPATH) which will be applied to over 10,000 whole genome sequences from Genomics England’s 100,000 Genomes Project.
+# 
+# The resulting data is highly sparse in nature and rife with environmental and sequencing contaminants. Despite this, SEPATH has revealed a range of interesting bacterial and viral genera associated with tumour samples. Many of the genera identified have been previously suggested for association with tumours such as Bacteroides and Fusobacterium in colorectal cancer and Alphapapillomavirus in oral cancer. Additionally, we have detected evidence for infectious disease which will be subject to independent validation and followed up appropriately. 
+# 
+# Analysing the microbial composition of tumours could provide an additional tool to aid in therapeutic stratification of cancer patients with little added cost following sequencing. Additionally, novel treatment avenues could be investigated further such as the use of antibiotics in certain types of cancer.
+
+```
+
+
+# Background
+
+The association of _H. pylori_ with gastric adenocarcinomacarcinoma[@RN102] and the successful Human papillomavirus (HPV) vaccine, estimated to prevent ≤80% of cervical cancer cases[@Johannes2011; @Crosbie2013] attest to the prominent role that pathogens play in cancer.
+
+When cancer tissue is sequenced, any microorganisms present in the sample can be incidentally sequenced simultaneously[@RN455]. The 100,000 genome project data therefore provides a rich resource for detecting microorganisms and linking them to disease.
+
+We previously benchmarked software to devise the best approach for cancer whole genome sequence metagenomics. The top performing pipelines are provided in a tool called [SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA)[@RN454] which performs the following:
+
+* Extracts unmapped reads from BAM files
+* Quality trimming & human read removal
+* Metagenomic classification - Kraken/mOTUs2[@RN72; @RN391]
+
+
+# Methods
+
+[SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA) is currently being applied to all samples from within the [100,00 genomes project](https://www.genomicsengland.co.uk/about-genomics-england/the-100000-genomes-project/) to search for evidence of and associations between pathogens and disease. The resulting non-human reads were pooled by cancer type and subject to metagenomic assembly MEGAHIT[@RN269]. The resulting contigs were classified with Diamond[@RN204] using a database built from NCBI genomes available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/). 
+
+
+```{r calculatebases, include=FALSE}
+# Tumour is minimum of 75x coverage in 100,000 genomes project
+# Human genome approx 300,000,000 base pairs
+# well over 10,000 samples 
+bp <- 75 * 300000000 * 10000
+#2.25x10^14
+```
+
+So far we have sifted through in excess of $2.25\times10^{14}$ base pairs from >10,000 tumour samples to search for evidence of pathogens. This is set to increase as more sequence data is released (figure \@ref(fig:gelrelease)) and as we search through the rare disease cohort.
+
+
+```{r gelrelease, out.width='90%', fig.asp=.75, fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.cap='The release of tumour sequence data from Genomics England 100,000 Genomes Project. SEPATH has been ran on data up to version 6.'}
+#no data on version 2 number of genomes inferring from number of genomes - participants 5225-2531
+genomes <- data.frame(Release_Version = c('1','2','3','4','5','6','7','8'),
+                      Cancer_Genomes = c(1211,  2694,
+                                        4362, 5891,
+                                        9773 ,11473,
+                                        13845, 17318),
+                      date_of_release= c('2017-10-11', '2018-01-30',
+                                         '2018-04-30', '2018-07-31',
+                                         '2018-11-20', '2019-02-28',
+                                         '2019-07-25','2019-11-28'),
+                      friendly_date = c('Oct 2017', 'Jan 2018',
+                                        'Apr 2018', 'July 2018',
+                                        'Nov 2018', 'Feb 2018',
+                                        'Jul 2019', 'Nov 2019'))
+
+genomes$friendly_date <- factor(genomes$friendly_date, levels=c('Oct 2017', 'Jan 2018',
+                                                                   'Apr 2018', 'July 2018',
+                                                                   'Nov 2018', 'Feb 2018',
+                                                                   'Jul 2019', 'Nov 2019'))
+
+release <- ggplot(genomes, aes(x=friendly_date, y=Cancer_Genomes)) +
+  geom_bar(stat='identity', fill='darkorchid4', alpha=0.7) +
+  geom_text(aes(y=300, label=Release_Version)) +
+  labs(x='Release Date & Version',
+       y='Number of Cancer Genomes',
+       title='Genomics England Cancer Sample Release') +
+  scale_y_continuous(limits=c(0,20000),
+                     breaks=c(0, 1200, 2700, 4500, 5981, 10000, 12000, 14000, 18000, 20000 )) +
+  theme_pubclean() +
+  theme(plot.title=element_text(hjust=0.5),
+        axis.text.x=element_text(angle=90, vjust=0.5))
+
+release
+```
+
+
+# Results
+
+All Potential contaminants according to Salter *et al.*[@Salter2014] and any mammalian classifications were removed from further investigation.
+
+## **SEPATH using Kraken**
+
+We filtered samples to retain only those that were PCR-free, fresh tissue tumours. Classifications with fewer than 20 reads were disregarded. Here we report on the top 20 most frequently occuring genera within each cancer type. Although some environmental contaminants likely remain, some pathogens have emerged that have previously been suspected to contribute to tumorigenesis such as *Bacteroides*, *Prevotella* and *Fusobacterium*[@Shang2018].
+
+```{r, gelkraken, out.width='100%', fig.asp=1, fig.cap='Results from the 100,000 Genomes Project. Classifications were obtained by using SEPATH with Kraken. Results are displayed by cancer type.', message=FALSE, warning=FALSE}
+# kraken_prevalence <- read_tsv(file='~/Desktop/kraken_prevalence.tsv')
+# #contigs were filtered for the following contaminant genera and weird list + mammalia
+# salter_contaminants <- c("Afipia", "Aquabacterium", "Asticcacaulis", "Aurantimonas",
+#                          "Beijerinckia", "Bosea", "Bradyrhizobium", "Brevundimonas",
+#                          "Caulobacter", "Craurococcus", "Devosia", "Hoeflea", "Mesorhizobium",
+#                          "Methylobacterium", "Novosphingobium", "Ochrobactrum", "Paracoccus",
+#                          "Pedomicrobium", "Phyllobacterium", "Rhizobium", "Roseomonas", "Sphingobium",
+#                          "Sphingomonas", "Sphingopyxis", "Acidovorax", "Azoarcus", "Azospira", "Burkholderia",
+#                          "Comamonas", "Cupriavidus", "Curvibacter", "Delftia", "Duganella", "Herbaspirillum",
+#                          "Janthinobacterium", "Kingella", "Leptothrix", "Limnobacter", "Massilia", "Methylophilus",
+#                          "Methyloversatilis", "Oxalobacter", "Pelomonas", "Polaromonase", "Ralstonia", "Schlegelella",
+#                          "Sulfuritalea", "Undibacterium", "Variovorax", "Acinetobacter", "Enhydrobacter", "Enterobacter",
+#                          "Escherichia", "Nevskiae", "Pseudomonas", "Pseudoxanthomonas", "Psychrobacter", "Stenotrophomonas",
+#                          "Xanthomonas", "Aeromicrobium", "Arthrobacter", "Beutenbergia", "Brevibacterium", "Corynebacterium",
+#                          "Curtobacterium", "Dietzia", "Geodermatophilus", "Janibacter", "Kocuria", "Microbacterium", "Micrococcus",
+#                          "Microlunatus", "Patulibacter", "Propionibacterium", "Rhodococcus", "Tsukamurella", "Abiotrophia", "Bacillus",
+#                          "Brevibacillus", "Brochothrix", "Facklamia", "Paenibacillus", "Streptococcus", "Chryseobacterium", "Dyadobacter",
+#                          "Flavobacterium", "Hydrotalea", "Niastella", "Olivibacter", "Pedobacter", "Wautersiella", "Deinococcus", "Acidobacteria")
+# weird_list <- c('Homo', 'Pan', 'gorilla', 'Gorilla',
+#                 'Nomascus', 'Pongo', 'Muntiacus',
+#                 'Aotus', 'Sus', 'Crocuta', 'Mus',
+#                 'Trachypithecus', 'Hylobates', 'Macaca',
+#                 'uncultured', 'bacterium', 'synthetic', 'unknown',
+#                 'Bos', 'Canis', 'Colobus', 'Vicugna', 'Trichechus',
+#                 'Chlorocebus', 'Mandrillus',
+#                 'gateway_entry_vector',
+#                 'Mycobacterium', 'Toxoplasma', 'Candidatus Pelagibacter')
+# 
+# kraken_prevalence %<>% filter(!genus %in% salter_contaminants) %>%
+#   filter(!genus %in% weird_list) %>% 
+#   mutate(all_cancers = ADULT_GLIOMA + BLADDER + BREAST + CARCINOMA_OF_UNKNOWN_PRIMARY +
+#            CHILDHOOD + COLORECTAL + ENDOCRINE + ENDOMETRIAL_CARCINOMA + HAEMONC + 
+#            HEPATOPANCREATOBILIARY + LUNG + MALIGNANT_MELANOMA + NASOPHARYNGEAL + ORAL_OROPHARYNGEAL + 
+#            OTHER + OVARIAN + PROSTATE + RENAL + SARCOMA + 
+#            SINONASAL + TESTICULAR_GERM_CELL_TUMOURS + UPPER_GASTROINTESTINAL)
+# 
+# kraken <- kraken_prevalence %>% pivot_longer(cols= c("ADULT_GLIOMA", "BLADDER", "BREAST",
+#                                                      "CARCINOMA_OF_UNKNOWN_PRIMARY",
+#                                                      "CHILDHOOD", "COLORECTAL", "ENDOCRINE",
+#                                                      "ENDOMETRIAL_CARCINOMA", "HAEMONC",
+#                                                      "HEPATOPANCREATOBILIARY", "LUNG", "MALIGNANT_MELANOMA",
+#                                                      "NASOPHARYNGEAL", "ORAL_OROPHARYNGEAL","OTHER",
+#                                                      "OVARIAN", "PROSTATE", "RENAL", "SARCOMA",
+#                                                      "SINONASAL", "TESTICULAR_GERM_CELL_TUMOURS", "UPPER_GASTROINTESTINAL", "all_cancers"))
+# 
+#  kraken_top <- kraken %>%
+#    group_by(name) %>%
+#    arrange(-value) %>%
+#    slice(1:20) %>%
+#   as.data.frame() %>%
+#   pivot_wider(names_from=name)
+# 
+# write.table(kraken_top, file='~/Desktop/ncrn_html/ncrn_html/resources/kraken_top.tsv',
+#             col.names = TRUE, row.names=FALSE, quote=FALSE, sep='\t')
+
+kraken_prevalence <- read_tsv(file='resources/kraken_top.tsv')
+
+colnames(kraken_prevalence) <- gsub('all_cancers', 'allcancers', colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- tolower(colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- gsub('endometrial_carcinoma', 'endometrial', colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- gsub('adult_glioma', 'glioma', colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- gsub('malignant_melanoma', 'melanoma', colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- gsub('oral_oropharyngeal', 'oral', colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- gsub('testicular_germ_cell_tumours', 'testicular', colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- gsub('upper_gastrointestinal', 'uppergi', colnames(kraken_prevalence))
+
+
+allcancers <- kraken_prevalence %>% select(genus, allcancers) %>% filter(!is.na(allcancers)) %>% arrange(-allcancers)
+bladder <- kraken_prevalence %>% select(genus, bladder) %>% filter(!is.na(bladder)) %>% arrange(-bladder)
+breast <- kraken_prevalence %>% select(genus, breast) %>% filter(!is.na(breast)) %>% arrange(-breast)
+childhood <- kraken_prevalence %>% select(genus, childhood) %>% filter(!is.na(childhood)) %>% arrange(-childhood)
+endocrine <- kraken_prevalence %>% select(genus, endocrine) %>% filter(!is.na(endocrine)) %>% arrange(-endocrine)
+endometrial <- kraken_prevalence %>% select(genus, endometrial) %>% filter(!is.na(endometrial)) %>% arrange(-endometrial)
+glioma <- kraken_prevalence %>% select(genus, glioma) %>% filter(!is.na(glioma)) %>% arrange(-glioma)
+hepatopancreatobiliary <- kraken_prevalence %>% select(genus, hepatopancreatobiliary) %>% filter(!is.na(hepatopancreatobiliary)) %>% arrange(-hepatopancreatobiliary)
+lung <- kraken_prevalence %>% select(genus, lung) %>% filter(!is.na(lung)) %>% arrange(-lung)
+melanoma <- kraken_prevalence %>% select(genus, melanoma) %>% filter(!is.na(melanoma)) %>% arrange(-melanoma)
+nasopharyngeal <- kraken_prevalence %>% select(genus, nasopharyngeal) %>% filter(!is.na(nasopharyngeal)) %>% arrange(-nasopharyngeal)
+oral <- kraken_prevalence %>% select(genus, oral) %>% filter(!is.na(oral)) %>% arrange(-oral)
+ovarian <- kraken_prevalence %>% select(genus, ovarian) %>% filter(!is.na(ovarian)) %>% arrange(-ovarian)
+prostate <- kraken_prevalence %>% select(genus, prostate) %>% filter(!is.na(prostate)) %>% arrange(-prostate)
+renal <- kraken_prevalence %>% select(genus, renal) %>% filter(!is.na(renal)) %>% arrange(-renal)
+sarcoma <- kraken_prevalence %>% select(genus, sarcoma) %>% filter(!is.na(sarcoma)) %>% arrange(-sarcoma)
+sinonasal <- kraken_prevalence %>% select(genus, sinonasal) %>% filter(!is.na(sinonasal)) %>% arrange(-sinonasal)
+testicular <- kraken_prevalence %>% select(genus, testicular) %>% filter(!is.na(testicular)) %>% arrange(-testicular)
+uppergi <- kraken_prevalence %>% select(genus, uppergi) %>% filter(!is.na(uppergi)) %>% arrange(-uppergi)
+
+
+
+kraken_fig <- plot_ly(type='bar') %>% 
+  add_trace(data=allcancers, y=~genus, x=~allcancers, visible=T, color=I("darkorchid4"), opacity=0.7) %>% 
+    add_trace(data=bladder, y=~genus, x=~bladder, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+      add_trace(data=breast, y=~genus, x=~breast, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=childhood, y=~genus, x=~childhood, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=endocrine, y=~genus, x=~endocrine, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=endometrial, y=~genus, x=~endometrial, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=glioma, y=~genus, x=~glioma, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=hepatopancreatobiliary, y=~genus, x=~hepatopancreatobiliary, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=lung, y=~genus, x=~lung, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=melanoma, y=~genus, x=~melanoma, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=nasopharyngeal, x=~genus, y=~nasopharyngeal, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=oral, y=~genus, x=~oral, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=ovarian, y=~genus, x=~ovarian, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=prostate, y=~genus, x=~prostate, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=renal, y=~genus, x=~renal, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=sarcoma, y=~genus, x=~sarcoma, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=sinonasal, y=~genus, x=~sinonasal, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=testicular, y=~genus, x=~testicular, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=uppergi, y=~genus, x=~uppergi, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+  layout(
+    yaxis = list(
+      title='Genus',
+      size=20,
+      tickfont=list(size=18)),
+    xaxis=list(
+      title='Number of Contigs',
+      size=20,
+      tickfont=list(size=18)),
+    showlegend=FALSE,
+    updatemenus = list(
+      list(
+        xanchor='right',
+        yanchor='bottom',
+        buttons = list(
+          list(method='restyle',
+               args=list('visible', list(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='All Cancers'),
+                    list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+                             label='Bladder'),
+                    list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Breast'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Childhood'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Endocrine'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Endometrial'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Glioma'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Hepatopancreatobiliary'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Lung'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Melanoma'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Nasopharyngeal'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Oral'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Ovarian'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Prostate'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE)),
+               label='Renal'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE)),
+               label='Sarcoma'),
+                    list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE)),
+               label='Sinonasal'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE)),
+               label='Testicular'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)),
+               label='Upper Gastrointestinal')
+          
+        )
+      )
+    )
+  )
+
+kraken_fig
+
+```
+
+
+
+## **Classification of Assembled Contigs**
+
+Although reads with any similarity to the human genome have been removed prior to assembly, we see hundreds of thousands of assembled genomic fragments accross the entire dataset for a variety of genera. The most common of which in the whole dataset are for *Prevotella*, *Bacteroides*, *Treponema* and *Fusobacterium*.
+
+
+```{r, gelcontigs, out.width='100%', fig.asp=1, fig.height=20, message=FALSE, warning=FALSE}
+#gelcontigs, animation.hook='gifski', fig.align='center', echo=FALSE, message=FALSE, warning=FALSE
+#out.width='100%', fig.asp=.75, fig.cap='Contigs in Genomics England'
+#contigs were filtered for the following contaminant genera and weird list + mammalia
+salter_contaminants <- c("Afipia", "Aquabacterium", "Asticcacaulis", "Aurantimonas",
+                         "Beijerinckia", "Bosea", "Bradyrhizobium", "Brevundimonas",
+                         "Caulobacter", "Craurococcus", "Devosia", "Hoeflea", "Mesorhizobium",
+                         "Methylobacterium", "Novosphingobium", "Ochrobactrum", "Paracoccus",
+                         "Pedomicrobium", "Phyllobacterium", "Rhizobium", "Roseomonas", "Sphingobium",
+                         "Sphingomonas", "Sphingopyxis", "Acidovorax", "Azoarcus", "Azospira", "Burkholderia",
+                         "Comamonas", "Cupriavidus", "Curvibacter", "Delftia", "Duganella", "Herbaspirillum",
+                         "Janthinobacterium", "Kingella", "Leptothrix", "Limnobacter", "Massilia", "Methylophilus",
+                         "Methyloversatilis", "Oxalobacter", "Pelomonas", "Polaromonase", "Ralstonia", "Schlegelella",
+                         "Sulfuritalea", "Undibacterium", "Variovorax", "Acinetobacter", "Enhydrobacter", "Enterobacter",
+                         "Escherichia", "Nevskiae", "Pseudomonas", "Pseudoxanthomonas", "Psychrobacter", "Stenotrophomonas",
+                         "Xanthomonas", "Aeromicrobium", "Arthrobacter", "Beutenbergia", "Brevibacterium", "Corynebacterium",
+                         "Curtobacterium", "Dietzia", "Geodermatophilus", "Janibacter", "Kocuria", "Microbacterium", "Micrococcus",
+                         "Microlunatus", "Patulibacter", "Propionibacterium", "Rhodococcus", "Tsukamurella", "Abiotrophia", "Bacillus",
+                         "Brevibacillus", "Brochothrix", "Facklamia", "Paenibacillus", "Streptococcus", "Chryseobacterium", "Dyadobacter",
+                         "Flavobacterium", "Hydrotalea", "Niastella", "Olivibacter", "Pedobacter", "Wautersiella", "Deinococcus", "Acidobacteria")
+
+weird_list <- c('Homo', 'Pan', 'gorilla', 'Gorilla',
+                'Nomascus', 'Pongo', 'Muntiacus',
+                'Aotus', 'Sus', 'Crocuta', 'Mus',
+                'Trachypithecus', 'Hylobates', 'Macaca',
+                'uncultured', 'bacterium', 'synthetic', 'unknown',
+                'Bos', 'Canis', 'Colobus', 'Vicugna', 'Trichechus',
+                'Chlorocebus', 'Mandrillus',
+                'gateway_entry_vector')
+
+contig_data <- data.frame(
+  stringsAsFactors = FALSE,
+                cancer = c("all_cancers",
+                           "all_cancers","all_cancers","all_cancers","all_cancers",
+                           "all_cancers","all_cancers","all_cancers",
+                           "all_cancers","all_cancers","all_cancers","all_cancers",
+                           "all_cancers","all_cancers","all_cancers",
+                           "all_cancers","all_cancers","all_cancers","all_cancers",
+                           "all_cancers","bladder","bladder","bladder",
+                           "bladder","bladder","bladder","bladder","bladder",
+                           "bladder","bladder","bladder","bladder","bladder",
+                           "bladder","bladder","bladder","bladder","bladder",
+                           "bladder","bladder","breast","breast","breast",
+                           "breast","breast","breast","breast","breast",
+                           "breast","breast","breast","breast","breast","breast",
+                           "breast","breast","breast","breast","breast",
+                           "breast","childhood","childhood","childhood",
+                           "childhood","childhood","childhood","childhood",
+                           "childhood","childhood","childhood","childhood",
+                           "childhood","childhood","childhood","childhood",
+                           "childhood","childhood","childhood","childhood",
+                           "childhood","endocrine","endocrine","endocrine","endocrine",
+                           "endocrine","endocrine","endocrine","endocrine",
+                           "endocrine","endocrine","endocrine","endocrine",
+                           "endocrine","endocrine","endocrine","endocrine",
+                           "endocrine","endocrine","endocrine","endocrine",
+                           "endometrial","endometrial","endometrial",
+                           "endometrial","endometrial","endometrial","endometrial",
+                           "endometrial","endometrial","endometrial",
+                           "endometrial","endometrial","endometrial","endometrial",
+                           "endometrial","endometrial","endometrial",
+                           "endometrial","endometrial","endometrial","glioma","glioma",
+                           "glioma","glioma","glioma","glioma","glioma",
+                           "glioma","glioma","glioma","glioma","glioma",
+                           "glioma","glioma","glioma","glioma","glioma","glioma",
+                           "glioma","glioma","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","hepatopancreatobiliary",
+                           "hepatopancreatobiliary","lung","lung","lung","lung","lung",
+                           "lung","lung","lung","lung","lung","lung","lung",
+                           "lung","lung","lung","lung","lung","lung",
+                           "lung","lung","melanoma","melanoma","melanoma",
+                           "melanoma","melanoma","melanoma","melanoma","melanoma",
+                           "melanoma","melanoma","melanoma","melanoma",
+                           "melanoma","melanoma","melanoma","melanoma",
+                           "melanoma","melanoma","melanoma","melanoma",
+                           "nasopharyngeal","nasopharyngeal","nasopharyngeal",
+                           "nasopharyngeal","nasopharyngeal","nasopharyngeal",
+                           "nasopharyngeal","nasopharyngeal","nasopharyngeal",
+                           "nasopharyngeal","nasopharyngeal","nasopharyngeal",
+                           "nasopharyngeal","nasopharyngeal","nasopharyngeal",
+                           "nasopharyngeal","nasopharyngeal","nasopharyngeal",
+                           "nasopharyngeal","nasopharyngeal","nasopharyngeal",
+                           "nasopharyngeal","oral","oral","oral","oral","oral",
+                           "oral","oral","oral","oral","oral","oral","oral",
+                           "oral","oral","oral","oral","oral","oral",
+                           "oral","oral","ovarian","ovarian","ovarian",
+                           "ovarian","ovarian","ovarian","ovarian","ovarian",
+                           "ovarian","ovarian","ovarian","ovarian","ovarian",
+                           "ovarian","ovarian","ovarian","ovarian","ovarian",
+                           "ovarian","ovarian","prostate","prostate",
+                           "prostate","prostate","prostate","prostate","prostate",
+                           "prostate","prostate","prostate","prostate",
+                           "prostate","prostate","prostate","prostate","prostate",
+                           "prostate","prostate","prostate","prostate",
+                           "renal","renal","renal","renal","renal","renal",
+                           "renal","renal","renal","renal","renal","renal",
+                           "renal","renal","renal","renal","renal","renal",
+                           "renal","renal","sarcoma","sarcoma","sarcoma",
+                           "sarcoma","sarcoma","sarcoma","sarcoma","sarcoma",
+                           "sarcoma","sarcoma","sarcoma","sarcoma","sarcoma",
+                           "sarcoma","sarcoma","sarcoma","sarcoma",
+                           "sarcoma","sarcoma","sarcoma","sinonasal","sinonasal",
+                           "sinonasal","sinonasal","sinonasal","sinonasal",
+                           "sinonasal","sinonasal","sinonasal","sinonasal",
+                           "sinonasal","sinonasal","sinonasal","sinonasal",
+                           "sinonasal","sinonasal","sinonasal","sinonasal",
+                           "sinonasal","sinonasal","testicular","testicular",
+                           "testicular","testicular","testicular","testicular",
+                           "testicular","testicular","testicular","testicular",
+                           "testicular","testicular","testicular",
+                           "testicular","testicular","testicular","testicular",
+                           "testicular","testicular","testicular","testicular",
+                           "testicular","uppergi","uppergi","uppergi","uppergi",
+                           "uppergi","uppergi","uppergi","uppergi",
+                           "uppergi","uppergi","uppergi","uppergi","uppergi",
+                           "uppergi","uppergi","uppergi","uppergi","uppergi",
+                           "uppergi","uppergi"),
+                  number_of_contigs = c(153966L,130777L,
+                           65754L,58792L,47973L,47960L,44341L,41555L,37504L,
+                           36840L,35509L,35162L,34796L,33217L,32684L,30945L,
+                           30907L,30562L,29577L,27943L,10775L,8312L,6154L,
+                           5928L,5082L,4818L,4418L,4362L,3439L,3342L,
+                           3228L,2442L,2335L,2208L,1776L,1735L,1419L,1371L,
+                           1309L,1281L,8661L,8399L,7969L,7718L,7080L,
+                           6871L,6403L,6023L,5317L,4736L,3979L,3557L,3449L,
+                           3397L,3235L,3070L,3042L,3032L,2763L,2755L,
+                           3893L,3667L,2786L,2188L,824L,768L,383L,362L,327L,
+                           262L,140L,127L,116L,107L,103L,97L,84L,78L,
+                           65L,60L,3675L,462L,234L,218L,163L,140L,88L,
+                           74L,60L,59L,59L,50L,41L,40L,35L,33L,33L,30L,
+                           30L,29L,4959L,4569L,3671L,3484L,3451L,2468L,
+                           2184L,2074L,1851L,1812L,1763L,1749L,1144L,947L,
+                           803L,505L,467L,421L,337L,287L,4247L,3969L,
+                           3571L,3360L,3019L,3009L,2441L,1946L,1881L,1812L,
+                           1573L,1417L,1020L,894L,808L,759L,738L,695L,
+                           686L,638L,22309L,13358L,7487L,6476L,5310L,5282L,
+                           4143L,3643L,3456L,3373L,3329L,3195L,3170L,
+                           2780L,2754L,2736L,2664L,2621L,2190L,2163L,14546L,
+                           8053L,7511L,5488L,5294L,5136L,3582L,3512L,
+                           3401L,3322L,3255L,2978L,2364L,2343L,2265L,2225L,
+                           2053L,2046L,1967L,1921L,7988L,6308L,5496L,
+                           4366L,3947L,3573L,2704L,2479L,2149L,1997L,1871L,
+                           1850L,1774L,1768L,1692L,1595L,1460L,1442L,
+                           1362L,1328L,1090L,684L,545L,110L,108L,57L,43L,
+                           26L,14L,12L,12L,9L,9L,8L,8L,7L,6L,6L,5L,5L,
+                           5L,5L,74674L,42882L,30679L,26583L,26115L,
+                           24220L,24177L,22941L,22262L,20628L,14862L,13196L,
+                           12394L,11247L,10126L,9880L,9544L,9182L,8824L,
+                           8472L,8477L,3747L,3501L,3174L,2188L,2161L,1989L,
+                           1864L,1837L,1622L,1474L,1459L,1304L,1284L,
+                           1201L,1145L,1073L,967L,931L,872L,7476L,6629L,
+                           5483L,5066L,4944L,4821L,4548L,4478L,4301L,3878L,
+                           3565L,3296L,3166L,2777L,2652L,2425L,2359L,
+                           2248L,2020L,1829L,24069L,14082L,11170L,6313L,6230L,
+                           6114L,6061L,6052L,5827L,5761L,5607L,5376L,
+                           4914L,4783L,4632L,4487L,4100L,3846L,3678L,3642L,
+                           35434L,16428L,7615L,7410L,6999L,6564L,6471L,
+                           6237L,5126L,5113L,4625L,4527L,4299L,4239L,4221L,
+                           4133L,3829L,3653L,3545L,3123L,4592L,2216L,
+                           2174L,1864L,1749L,1678L,1631L,1402L,1398L,1392L,
+                           1303L,1123L,902L,619L,470L,469L,435L,412L,
+                           386L,365L,669L,124L,114L,24L,18L,13L,8L,8L,7L,
+                           7L,6L,6L,5L,4L,3L,3L,3L,3L,2L,2L,2L,2L,
+                           9442L,7728L,5841L,5654L,4416L,3876L,3386L,
+                           3178L,2781L,2758L,2698L,2323L,2315L,2271L,2134L,
+                           1909L,1754L,1543L,1520L,1406L),
+                 genus = as.factor(c("Prevotella","Bacteroides","Treponema",
+                                     "Fusobacterium","Selenomonas","Candidatus",
+                                     "Plasmodium","Porphyromonas","Rudaea",
+                                     "Campylobacter","Achromobacter",
+                                     "Clostridium","Staphylococcus","Burkholderiales",
+                                     "Bradyrhizobiaceae","unclassified",
+                                     "Veillonella","Leptotrichia","Actinomyces",
+                                     "Mycobacteroides","Anaerococcus","Prevotella",
+                                     "Peptoniphilus","Achromobacter","Rudaea",
+                                     "Campylobacter","Actinotignum",
+                                     "Finegoldia","Plasmodium","unclassified",
+                                     "Vulcaniibacterium","Veillonella","Varibaculum",
+                                     "Cutibacterium","Gleimia","Lactobacillus",
+                                     "Enterococcus","Alloscardovia",
+                                     "Aerococcus","Tepidimonas","Bacteroides",
+                                     "Candidatus","Malassezia","Burkholderiales",
+                                     "Plasmodium","Staphylococcus","Rhizobiales",
+                                     "Mycobacterium","Meiothermus",
+                                     "Bradyrhizobiaceae","Betaproteobacteria","Asanoa",
+                                     "Agrobacterium","Hyphomicrobium",
+                                     "Mycobacteroides","Leifsonia","Dechloromonas",
+                                     "Gordonia","Mycolicibacterium",
+                                     "unclassified","Bradyrhizobiaceae","Rudaea",
+                                     "Plasmodium","Fusobacterium","Cutibacterium",
+                                     "Sulfolobus","Virgibacillus","Mycobacterium",
+                                     "Achromobacter","Mycobacteroides",
+                                     "Enterobius","Mycolicibacterium",
+                                     "Burkholderiales","Staphylococcus","Shewanella",
+                                     "Roseolovirus","Candidatus","Porphyromonas",
+                                     "Leuconostoc","Varicellovirus","Emticicia",
+                                     "Plasmodium","Rickettsiales",
+                                     "Alphaproteobacteria","Candidatus","Sulfolobus",
+                                     "Thauera","Trichinella","Proteobacteria",
+                                     "Elizabethkingia","Tanacetum","Rickettsia",
+                                     "Rhodospirillaceae","Virgibacillus",
+                                     "Gammaproteobacteria","Burkholderiales",
+                                     "Sphingobacteriales","Klebsiella",
+                                     "unclassified","Citrobacter","Mycobacteroides",
+                                     "Nocardia","unclassified","Penicillium",
+                                     "Meiothermus","Chitinophagaceae",
+                                     "Mycobacterium","Cutibacterium","Bodo",
+                                     "Sediminibacterium","Plasmodium","Alternaria",
+                                     "Mycolicibacterium","Peptoniphilus",
+                                     "Aspergillus","Lachnospiraceae","Bradyrhizobiaceae",
+                                     "Candidatus","Virgibacillus",
+                                     "Lactobacillus","Plasmodium","Achromobacter",
+                                     "Candidatus","Bradyrhizobiaceae",
+                                     "Burkholderiales","Bodo","Chitinophagaceae",
+                                     "unclassified","Sediminibacterium","Tepidimonas",
+                                     "Campylobacter","Chlamydiales",
+                                     "Vulcaniibacterium","Lawsonella","Emticicia",
+                                     "Porphyromonas","Rudaea","Moraxella",
+                                     "Chlamydiae","Cutibacterium","Bacteroides",
+                                     "Prevotella","Fusobacterium","Achromobacter",
+                                     "Clostridium","Rudaea","Ruminococcus",
+                                     "Klebsiella","Oscillibacter",
+                                     "Faecalibacterium","Plasmodium","Enterococcus",
+                                     "Firmicutes","unclassified","Veillonella",
+                                     "Selenomonas","Clostridiales","Haemophilus",
+                                     "Treponema","Dialister","Bacteroides",
+                                     "Achromobacter","Candidatus","Staphylococcus",
+                                     "Burkholderiales","Fusobacterium",
+                                     "Methylorubrum","Bodo","Prevotella",
+                                     "Malassezia","Bradyrhizobiaceae","Mycobacteroides",
+                                     "unclassified","Veillonella",
+                                     "Mycolicibacterium","Exiguobacterium","Nocardia",
+                                     "Rhizobiales","Youhaiella","Starkeya",
+                                     "Prevotella","Treponema","Rudaea",
+                                     "Emticicia","Fusobacterium","Selenomonas",
+                                     "Mogibacterium","Campylobacter","Dialister",
+                                     "Fretibacterium","Bacteroides","Veillonella",
+                                     "Tannerella","Olsenella",
+                                     "Shuttleworthia","Peptoniphilus","Haemophilus",
+                                     "Eggerthia","Mycobacteroides","Plasmodium",
+                                     "Fusobacterium","Prevotella","Plasmodium",
+                                     "Bacteroides","Sulfolobus","Trichinella",
+                                     "Solobacterium","Virgibacillus",
+                                     "Staphylococcus","Enterobius","Porphyromonas",
+                                     "Mycobacterium","Parvimonas","Enterococcus",
+                                     "Mycoplasma","Chlamydia",
+                                     "Alphapapillomavirus","Leuconostoc","Cercocebus",
+                                     "Klebsiella","Neisseria","Selenomonas",
+                                     "Prevotella","Treponema","Selenomonas",
+                                     "Actinomyces","Trichomonas","Capnocytophaga",
+                                     "Leptotrichia","Fusobacterium","Campylobacter",
+                                     "Porphyromonas","Neisseria",
+                                     "Haemophilus","Veillonella","Lachnospiraceae",
+                                     "Rothia","Alloprevotella","Gemella",
+                                     "Lachnoanaerobaculum","Catonella","Oribacterium",
+                                     "Bacteroides","Burkholderiales",
+                                     "Plasmodium","Mycolicibacterium","Effusibacillus",
+                                     "Fusobacterium","Candidatus",
+                                     "Staphylococcus","Hyphomicrobium","Mycobacterium",
+                                     "Mycobacteroides","Vulcaniibacterium",
+                                     "Bradyrhizobiaceae","Cutibacterium",
+                                     "Malassezia","Alishewanella","Nocardia",
+                                     "unclassified","Porphyromonas","Meiothermus",
+                                     "Bradyrhizobiaceae","Methylorubrum",
+                                     "Candidatus","Mycobacteroides","Burkholderiales",
+                                     "Mycolicibacterium","Pannonibacter",
+                                     "Plasmodium","Bacteroides","Mycobacterium",
+                                     "Malassezia","Staphylococcus","Tepidimonas",
+                                     "Pelagibacterium","Nocardia",
+                                     "Prevotella","Vulcaniibacterium","Porphyrobacter",
+                                     "Dialister","Fusobacterium","Bacteroides",
+                                     "Clostridium","Prevotella",
+                                     "Porphyromonas","Candidatus","Malassezia",
+                                     "Achromobacter","Bradyrhizobiaceae","Tepidimonas",
+                                     "Plasmodium","Clostridiales",
+                                     "Staphylococcus","Vulcaniibacterium","Roseburia",
+                                     "Fusobacterium","Emticicia",
+                                     "Faecalibacterium","Mycobacteroides","Butyricimonas",
+                                     "Enterococcus","Bacteroides","Prevotella",
+                                     "Staphylococcus","Peptoniphilus",
+                                     "Anaerococcus","Faecalibacterium","Porphyromonas",
+                                     "Parabacteroides","Rudaea","Nocardia",
+                                     "Candidatus","Veillonella",
+                                     "Burkholderiales","unclassified","Roseburia",
+                                     "Emticicia","Citrobacter","Vulcaniibacterium",
+                                     "Alistipes","Clostridium","Treponema",
+                                     "Prevotella","Campylobacter","Fusobacterium",
+                                     "Haemophilus","Moraxella","Alloprevotella",
+                                     "Selenomonas","Parvimonas","Neisseria",
+                                     "Eikenella","Gemella","Bodo",
+                                     "Fretibacterium","Candidatus","Peptostreptococcus",
+                                     "Plasmodium","Porphyromonas",
+                                     "Filifactor","Peptoanaerobacter","Plasmodium",
+                                     "Sulfolobus","Trichinella","Virgibacillus",
+                                     "Staphylococcus","Leuconostoc","Chlamydia",
+                                     "Roseolovirus","Enterococcus",
+                                     "Mycobacterium","Enterobius","Tetrasphaera",
+                                     "Lactobacillus","Butyrivibrio","Cercocebus",
+                                     "Klebsiella","Rhinopithecus","Vibrio",
+                                     "Bifidobacterium","Campylobacter",
+                                     "Pediococcus","Shigella","Prevotella","Treponema",
+                                     "Clostridium","Selenomonas",
+                                     "Leptotrichia","Lactobacillus","Fusobacterium",
+                                     "Veillonella","Effusibacillus","Neisseria",
+                                     "Bacteroides","Haemophilus","Hafnia",
+                                     "Mycobacteroides","Rothia","Peptoanaerobacter",
+                                     "Catonella","Parvimonas",
+                                     "Lachnospiraceae","Solobacterium"))
+    )
+
+
+contig_wider <- contig_data %>% pivot_wider(names_from=cancer, values_from=number_of_contigs)
+
+colnames(contig_wider) <- gsub('all_cancers', 'allcancers', colnames(contig_wider))
+
+allcancers <- contig_wider %>% select(genus, allcancers) %>% filter(!is.na(allcancers)) %>% arrange(-allcancers)
+bladder <- contig_wider %>% select(genus, bladder) %>% filter(!is.na(bladder)) %>% arrange(-bladder)
+breast <- contig_wider %>% select(genus, breast) %>% filter(!is.na(breast)) %>% arrange(-breast)
+childhood <- contig_wider %>% select(genus, childhood) %>% filter(!is.na(childhood)) %>% arrange(-childhood)
+endocrine <- contig_wider %>% select(genus, endocrine) %>% filter(!is.na(endocrine)) %>% arrange(-endocrine)
+endometrial <- contig_wider %>% select(genus, endometrial) %>% filter(!is.na(endometrial)) %>% arrange(-endometrial)
+glioma <- contig_wider %>% select(genus, glioma) %>% filter(!is.na(glioma)) %>% arrange(-glioma)
+hepatopancreatobiliary <- contig_wider %>% select(genus, hepatopancreatobiliary) %>% filter(!is.na(hepatopancreatobiliary)) %>% arrange(-hepatopancreatobiliary)
+lung <- contig_wider %>% select(genus, lung) %>% filter(!is.na(lung)) %>% arrange(-lung)
+melanoma <- contig_wider %>% select(genus, melanoma) %>% filter(!is.na(melanoma)) %>% arrange(-melanoma)
+nasopharyngeal <- contig_wider %>% select(genus, nasopharyngeal) %>% filter(!is.na(nasopharyngeal)) %>% arrange(-nasopharyngeal)
+oral <- contig_wider %>% select(genus, oral) %>% filter(!is.na(oral)) %>% arrange(-oral)
+ovarian <- contig_wider %>% select(genus, ovarian) %>% filter(!is.na(ovarian)) %>% arrange(-ovarian)
+prostate <- contig_wider %>% select(genus, prostate) %>% filter(!is.na(prostate)) %>% arrange(-prostate)
+renal <- contig_wider %>% select(genus, renal) %>% filter(!is.na(renal)) %>% arrange(-renal)
+sarcoma <- contig_wider %>% select(genus, sarcoma) %>% filter(!is.na(sarcoma)) %>% arrange(-sarcoma)
+sinonasal <- contig_wider %>% select(genus, sinonasal) %>% filter(!is.na(sinonasal)) %>% arrange(-sinonasal)
+testicular <- contig_wider %>% select(genus, testicular) %>% filter(!is.na(testicular)) %>% arrange(-testicular)
+uppergi <- contig_wider %>% select(genus, uppergi) %>% filter(!is.na(uppergi)) %>% arrange(-uppergi)
+
+
+contig_fig <- plot_ly(type='bar') %>% 
+  add_trace(data=allcancers, y=~genus, x=~allcancers, visible=T, color=I("darkorchid4"), opacity=0.7) %>% 
+    add_trace(data=bladder, y=~genus, x=~bladder, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+      add_trace(data=breast, y=~genus, x=~breast, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=childhood, y=~genus, x=~childhood, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=endocrine, y=~genus, x=~endocrine, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=endometrial, y=~genus, x=~endometrial, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=glioma, y=~genus, x=~glioma, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=hepatopancreatobiliary, y=~genus, x=~hepatopancreatobiliary, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=lung, y=~genus, x=~lung, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=melanoma, y=~genus, x=~melanoma, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=nasopharyngeal, x=~genus, y=~nasopharyngeal, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=oral, y=~genus, x=~oral, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=ovarian, y=~genus, x=~ovarian, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=prostate, y=~genus, x=~prostate, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=renal, y=~genus, x=~renal, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=sarcoma, y=~genus, x=~sarcoma, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=sinonasal, y=~genus, x=~sinonasal, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=testicular, y=~genus, x=~testicular, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=uppergi, y=~genus, x=~uppergi, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+  layout(
+    yaxis = list(
+      title='Genus',
+      size=20,
+      tickfont=list(size=18)),
+    xaxis=list(
+      title='Number of Contigs',
+      size=20,
+      tickfont=list(size=18)),
+    showlegend=FALSE,
+    updatemenus = list(
+      list(
+        xanchor='right',
+        yanchor='bottom',
+        buttons = list(
+          list(method='restyle',
+               args=list('visible', list(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='All Cancers'),
+                    list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+                             label='Bladder'),
+                    list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Breast'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Childhood'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Endocrine'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Endometrial'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Glioma'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Hepatopancreatobiliary'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Lung'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Melanoma'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Nasopharyngeal'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Oral'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Ovarian'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Prostate'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE)),
+               label='Renal'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE)),
+               label='Sarcoma'),
+                    list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE)),
+               label='Sinonasal'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE)),
+               label='Testicular'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)),
+               label='Upper Gastrointestinal')
+          
+        )
+      )
+    )
+  )
+
+contig_fig
+
+
+```
+
+
+
+
+
+
+# Conclusion
+
+Although the data overall is sparse and rife with potential contaminants, there are a range of interesting genera being reported accross cancer types in the Genomics England dataset by both SEPATH and by investigating metagenomic assembly of contigs. Some of these genera have previously been suggested to contribute to tumourigenesis.
+
+Despite using machine learning efforts to refine lists of informative taxa, our efforts so far have not been able to identify any form of obvious structure by cancer type. This is contradictory to recent publications and will be investigated further.
+
+
+# Future Directions
+
+- This data will be interrogated further for any links with metadata.
+- The raw quality-trimmed and non-human reads have been mapped back to the contigs and this will be assessed as a second layer of information. 
+- These contigs will be subject to functional analysis to investigate the functional potential of pathogens that are being detected.
+
+
+```{r, include=FALSE}
+knitr::write_bib(c('knitr','rmarkdown','posterdown','pagedown'), 'packages.bib')
+```
+
+# References
