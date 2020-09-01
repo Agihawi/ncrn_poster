@@ -827,9 +827,6 @@ contig_fig
 
 
 
-
-
-
 # Conclusion
 
 Although the data overall is sparse and rife with potential contaminants, there are a range of interesting genera being reported accross cancer types in the Genomics England dataset by both SEPATH and by investigating metagenomic assembly of contigs. Some of these genera have previously been suggested to contribute to tumourigenesis.
@@ -843,6 +840,9 @@ Despite using machine learning efforts to refine lists of informative taxa, our 
 - The raw quality-trimmed and non-human reads have been mapped back to the contigs and this will be assessed as a second layer of information. 
 - These contigs will be subject to functional analysis to investigate the functional potential of pathogens that are being detected.
 
+# Final note
+
+This poster was produced in R using the [posterdown](https://github.com/brentthorne/posterdown) package. The github associated can be found at: [https://github.com/Agihawi/ncrn_poster](https://github.com/Agihawi/ncrn_poster)
 
 ```{r, include=FALSE}
 knitr::write_bib(c('knitr','rmarkdown','posterdown','pagedown'), 'packages.bib')
