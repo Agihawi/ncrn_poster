@@ -205,14 +205,17 @@ colnames(kraken_prevalence) <- gsub('malignant_melanoma', 'melanoma', colnames(k
 colnames(kraken_prevalence) <- gsub('oral_oropharyngeal', 'oral', colnames(kraken_prevalence))
 colnames(kraken_prevalence) <- gsub('testicular_germ_cell_tumours', 'testicular', colnames(kraken_prevalence))
 colnames(kraken_prevalence) <- gsub('upper_gastrointestinal', 'uppergi', colnames(kraken_prevalence))
+colnames(kraken_prevalence) <- gsub('haemonc', 'haematological', colnames(kraken_prevalence))
 
 
 allcancers <- kraken_prevalence %>% select(genus, allcancers) %>% filter(!is.na(allcancers)) %>% arrange(allcancers)
 bladder <- kraken_prevalence %>% select(genus, bladder) %>% filter(!is.na(bladder)) %>% arrange(bladder)
 breast <- kraken_prevalence %>% select(genus, breast) %>% filter(!is.na(breast)) %>% arrange(breast)
 childhood <- kraken_prevalence %>% select(genus, childhood) %>% filter(!is.na(childhood)) %>% arrange(childhood)
+colorectal <- kraken_prevalence %>% select(genus, colorectal) %>% filter(!is.na(colorectal)) %>% arrange(colorectal)
 endocrine <- kraken_prevalence %>% select(genus, endocrine) %>% filter(!is.na(endocrine)) %>% arrange(endocrine)
 endometrial <- kraken_prevalence %>% select(genus, endometrial) %>% filter(!is.na(endometrial)) %>% arrange(endometrial)
+haematological <- kraken_prevalence %>% select(genus, haematological) %>% filter(!is.na(haematological)) %>% arrange(haematological)
 glioma <- kraken_prevalence %>% select(genus, glioma) %>% filter(!is.na(glioma)) %>% arrange(glioma)
 hepatopancreatobiliary <- kraken_prevalence %>% select(genus, hepatopancreatobiliary) %>% filter(!is.na(hepatopancreatobiliary)) %>% arrange(hepatopancreatobiliary)
 lung <- kraken_prevalence %>% select(genus, lung) %>% filter(!is.na(lung)) %>% arrange(lung)
@@ -228,14 +231,15 @@ testicular <- kraken_prevalence %>% select(genus, testicular) %>% filter(!is.na(
 uppergi <- kraken_prevalence %>% select(genus, uppergi) %>% filter(!is.na(uppergi)) %>% arrange(uppergi)
 
 
-
 kraken_fig <- plot_ly(type='bar') %>% 
   add_trace(data=allcancers, y=~genus, x=~allcancers, visible=T, color=I("darkorchid4"), opacity=0.7) %>% 
     add_trace(data=bladder, y=~genus, x=~bladder, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
       add_trace(data=breast, y=~genus, x=~breast, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
         add_trace(data=childhood, y=~genus, x=~childhood, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=colorectal, y=~genus, x=~colorectal, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
         add_trace(data=endocrine, y=~genus, x=~endocrine, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
-        add_trace(data=endometrial, y=~genus, x=~endometrial, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
+        add_trace(data=endometrial, y=~genus, x=~endometrial, visible=F, color=I("darkorchid4"), opacity=0.7) %>%
+        add_trace(data=haematological, y=~genus, x=~haematological, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
         add_trace(data=glioma, y=~genus, x=~glioma, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
         add_trace(data=hepatopancreatobiliary, y=~genus, x=~hepatopancreatobiliary, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
         add_trace(data=lung, y=~genus, x=~lung, visible=F, color=I("darkorchid4"), opacity=0.7) %>% 
@@ -265,79 +269,89 @@ kraken_fig <- plot_ly(type='bar') %>%
         yanchor='bottom',
         buttons = list(
           list(method='restyle',
-               args=list('visible', list(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='All Cancers'),
                     list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                              label='Bladder'),
                     list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Breast'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Childhood'),
+          
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Colorectal'),
+          
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Endocrine'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Endometrial'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label='Haematological'),
+          list(method='restyle',
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Glioma'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Hepatopancreatobiliary'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Lung'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Melanoma'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Nasopharyngeal'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Oral'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Ovarian'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                label='Prostate'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE)),
                label='Renal'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE)),
                label='Sarcoma'),
                     list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE)),
                label='Sinonasal'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE)),
                label='Testicular'),
           list(method='restyle',
-               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+               args=list('visible', list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                          FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)),
                label='Upper Gastrointestinal')
           
