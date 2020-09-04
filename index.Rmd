@@ -82,7 +82,7 @@ We previously benchmarked software to devise the optimal approach to detect mirc
 
 # Methods
 
-[SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA) is currently being applied to all samples from within the [100,00 genomes project](https://www.genomicsengland.co.uk/about-genomics-england/the-100000-genomes-project/) to search for evidence of and associations between pathogens and disease. The resulting non-human reads were pooled by cancer type and subject to metagenomic assembly MEGAHIT[@RN269]. The resulting contigs were classified with Diamond[@RN204] using a database built from NCBI genomes available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/). From both appraoaches, all potential contaminants according to Salter *et al.*[@Salter2014] and any mammalian classifications were removed from further investigation.
+[SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA) is currently being applied to all samples from within the [100,00 genomes project](https://www.genomicsengland.co.uk/about-genomics-england/the-100000-genomes-project/) to search for evidence of and associations between pathogens and disease. The resulting non-human reads were pooled by cancer type and subject to metagenomic assembly MEGAHIT[@RN269]. The resulting contigs were classified with Diamond[@RN204] using a database built from NCBI genomes available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/). From both approaches, all potential contaminants according to Salter *et al.*[@Salter2014] and any mammalian classifications were removed from further investigation.
 
 
 ```{r calculatebases, include=FALSE}
