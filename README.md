@@ -6,4 +6,6 @@ Here we report on the results of applying [SEPATH](https://genomebiology.biomedc
 
 The HTML version of the poster can be accessed [here](https://agihawi.github.io/ncrn_poster/)
 
-The code used to produce the poster and plots can be found [here](index.rmd)
+The code used to produce the poster and plots can be found [here](index.Rmd)
+
+A PDF version can be found [here](ncrn_poster.pdf), but please note the the interactive plots can only be viewed in HTML!

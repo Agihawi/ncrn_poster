@@ -71,9 +71,9 @@ library(plotly)
 
 The association of _H. pylori_ with gastric adenocarcinomacarcinoma[@RN102] and the successful Human papillomavirus (HPV) vaccine, estimated to prevent ≤80% of cervical cancer cases[@Johannes2011; @Crosbie2013] attest to the prominent role that pathogens play in cancer.
 
-When cancer tissue is sequenced, any microorganisms present in the sample can be incidentally sequenced simultaneously[@RN455]. The 100,000 genome project data therefore provides a rich resource for detecting microorganisms and linking them to disease.
+When cancer tissue is sequenced, any microorganisms present in the sample can be incidentally sequenced simultaneously[@RN455]. We have been investigating this in over 10,000 samples from cancer cohort of the 100,000 genomes project by Genomics England. It is hoped that this dataset will prove to be a rich resource for detecting microorganisms and linking them to disease. 
 
-We previously benchmarked software to devise the best approach for cancer whole genome sequence metagenomics. The top performing pipelines are provided in a tool called [SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA)[@RN454] which performs the following:
+We previously benchmarked software to devise the optimal approach to detect mircorogranisms in cancer whole genome sequences. The top performing pipelines are provided in a tool called [SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA)[@RN454] which performs the following:
 
 * Extracts unmapped reads from BAM files
 * Quality trimming & human read removal
@@ -82,7 +82,7 @@ We previously benchmarked software to devise the best approach for cancer whole 
 
 # Methods
 
-[SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA) is currently being applied to all samples from within the [100,00 genomes project](https://www.genomicsengland.co.uk/about-genomics-england/the-100000-genomes-project/) to search for evidence of and associations between pathogens and disease. The resulting non-human reads were pooled by cancer type and subject to metagenomic assembly MEGAHIT[@RN269]. The resulting contigs were classified with Diamond[@RN204] using a database built from NCBI genomes available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/). 
+[SEPATH](https://github.com/UEA-Cancer-Genetics-Lab/sepath_tool_UEA) is currently being applied to all samples from within the [100,00 genomes project](https://www.genomicsengland.co.uk/about-genomics-england/the-100000-genomes-project/) to search for evidence of and associations between pathogens and disease. The resulting non-human reads were pooled by cancer type and subject to metagenomic assembly MEGAHIT[@RN269]. The resulting contigs were classified with Diamond[@RN204] using a database built from NCBI genomes available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/). From both appraoaches, all potential contaminants according to Salter *et al.*[@Salter2014] and any mammalian classifications were removed from further investigation.
 
 
 ```{r calculatebases, include=FALSE}
@@ -96,7 +96,7 @@ bp <- 75 * 300000000 * 10000
 So far we have sifted through in excess of $2.25\times10^{14}$ base pairs from >10,000 tumour samples to search for evidence of pathogens. This is set to increase as more sequence data is released (figure \@ref(fig:gelrelease)) and as we search through the rare disease cohort.
 
 
-```{r gelrelease, out.width='90%', fig.asp=.75, fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.cap='The release of tumour sequence data from Genomics England 100,000 Genomes Project. SEPATH has been ran on data up to version 6.'}
+```{r gelrelease, out.width='70%', fig.asp=.75, fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.cap='The release of tumour sequence data from Genomics England 100,000 Genomes Project. SEPATH has been applied to data up to version 6.'}
 #no data on version 2 number of genomes inferring from number of genomes - participants 5225-2531
 genomes <- data.frame(Release_Version = c('1','2','3','4','5','6','7','8'),
                       Cancer_Genomes = c(1211,  2694,
@@ -135,13 +135,11 @@ release
 
 # Results
 
-All Potential contaminants according to Salter *et al.*[@Salter2014] and any mammalian classifications were removed from further investigation.
-
 ## **SEPATH using Kraken**
 
 We filtered samples to retain only those that were PCR-free, fresh tissue tumours. Classifications with fewer than 20 reads were disregarded. Here we report on the top 20 most frequently occuring genera within each cancer type. Although some environmental contaminants likely remain, some pathogens have emerged that have previously been suspected to contribute to tumorigenesis such as *Bacteroides*, *Prevotella* and *Fusobacterium*[@Shang2018].
 
-```{r, gelkraken, out.width='100%', fig.asp=1, fig.cap='Results from the 100,000 Genomes Project. Classifications were obtained by using SEPATH with Kraken. Results are displayed by cancer type.', message=FALSE, warning=FALSE}
+```{r, gelkraken, out.width='100%', fig.asp=1, fig.cap='Results from the 100,000 Genomes Project. Genus level classifications were obtained by using SEPATH with Kraken. Results are displayed by cancer type.', message=FALSE, warning=FALSE}
 # kraken_prevalence <- read_tsv(file='~/Desktop/kraken_prevalence.tsv')
 # #contigs were filtered for the following contaminant genera and weird list + mammalia
 # salter_contaminants <- c("Afipia", "Aquabacterium", "Asticcacaulis", "Aurantimonas",
@@ -209,25 +207,25 @@ colnames(kraken_prevalence) <- gsub('testicular_germ_cell_tumours', 'testicular'
 colnames(kraken_prevalence) <- gsub('upper_gastrointestinal', 'uppergi', colnames(kraken_prevalence))
 
 
-allcancers <- kraken_prevalence %>% select(genus, allcancers) %>% filter(!is.na(allcancers)) %>% arrange(-allcancers)
-bladder <- kraken_prevalence %>% select(genus, bladder) %>% filter(!is.na(bladder)) %>% arrange(-bladder)
-breast <- kraken_prevalence %>% select(genus, breast) %>% filter(!is.na(breast)) %>% arrange(-breast)
-childhood <- kraken_prevalence %>% select(genus, childhood) %>% filter(!is.na(childhood)) %>% arrange(-childhood)
-endocrine <- kraken_prevalence %>% select(genus, endocrine) %>% filter(!is.na(endocrine)) %>% arrange(-endocrine)
-endometrial <- kraken_prevalence %>% select(genus, endometrial) %>% filter(!is.na(endometrial)) %>% arrange(-endometrial)
-glioma <- kraken_prevalence %>% select(genus, glioma) %>% filter(!is.na(glioma)) %>% arrange(-glioma)
-hepatopancreatobiliary <- kraken_prevalence %>% select(genus, hepatopancreatobiliary) %>% filter(!is.na(hepatopancreatobiliary)) %>% arrange(-hepatopancreatobiliary)
-lung <- kraken_prevalence %>% select(genus, lung) %>% filter(!is.na(lung)) %>% arrange(-lung)
-melanoma <- kraken_prevalence %>% select(genus, melanoma) %>% filter(!is.na(melanoma)) %>% arrange(-melanoma)
-nasopharyngeal <- kraken_prevalence %>% select(genus, nasopharyngeal) %>% filter(!is.na(nasopharyngeal)) %>% arrange(-nasopharyngeal)
-oral <- kraken_prevalence %>% select(genus, oral) %>% filter(!is.na(oral)) %>% arrange(-oral)
-ovarian <- kraken_prevalence %>% select(genus, ovarian) %>% filter(!is.na(ovarian)) %>% arrange(-ovarian)
-prostate <- kraken_prevalence %>% select(genus, prostate) %>% filter(!is.na(prostate)) %>% arrange(-prostate)
-renal <- kraken_prevalence %>% select(genus, renal) %>% filter(!is.na(renal)) %>% arrange(-renal)
-sarcoma <- kraken_prevalence %>% select(genus, sarcoma) %>% filter(!is.na(sarcoma)) %>% arrange(-sarcoma)
-sinonasal <- kraken_prevalence %>% select(genus, sinonasal) %>% filter(!is.na(sinonasal)) %>% arrange(-sinonasal)
-testicular <- kraken_prevalence %>% select(genus, testicular) %>% filter(!is.na(testicular)) %>% arrange(-testicular)
-uppergi <- kraken_prevalence %>% select(genus, uppergi) %>% filter(!is.na(uppergi)) %>% arrange(-uppergi)
+allcancers <- kraken_prevalence %>% select(genus, allcancers) %>% filter(!is.na(allcancers)) %>% arrange(allcancers)
+bladder <- kraken_prevalence %>% select(genus, bladder) %>% filter(!is.na(bladder)) %>% arrange(bladder)
+breast <- kraken_prevalence %>% select(genus, breast) %>% filter(!is.na(breast)) %>% arrange(breast)
+childhood <- kraken_prevalence %>% select(genus, childhood) %>% filter(!is.na(childhood)) %>% arrange(childhood)
+endocrine <- kraken_prevalence %>% select(genus, endocrine) %>% filter(!is.na(endocrine)) %>% arrange(endocrine)
+endometrial <- kraken_prevalence %>% select(genus, endometrial) %>% filter(!is.na(endometrial)) %>% arrange(endometrial)
+glioma <- kraken_prevalence %>% select(genus, glioma) %>% filter(!is.na(glioma)) %>% arrange(glioma)
+hepatopancreatobiliary <- kraken_prevalence %>% select(genus, hepatopancreatobiliary) %>% filter(!is.na(hepatopancreatobiliary)) %>% arrange(hepatopancreatobiliary)
+lung <- kraken_prevalence %>% select(genus, lung) %>% filter(!is.na(lung)) %>% arrange(lung)
+melanoma <- kraken_prevalence %>% select(genus, melanoma) %>% filter(!is.na(melanoma)) %>% arrange(melanoma)
+nasopharyngeal <- kraken_prevalence %>% select(genus, nasopharyngeal) %>% filter(!is.na(nasopharyngeal)) %>% arrange(nasopharyngeal)
+oral <- kraken_prevalence %>% select(genus, oral) %>% filter(!is.na(oral)) %>% arrange(oral)
+ovarian <- kraken_prevalence %>% select(genus, ovarian) %>% filter(!is.na(ovarian)) %>% arrange(ovarian)
+prostate <- kraken_prevalence %>% select(genus, prostate) %>% filter(!is.na(prostate)) %>% arrange(prostate)
+renal <- kraken_prevalence %>% select(genus, renal) %>% filter(!is.na(renal)) %>% arrange(renal)
+sarcoma <- kraken_prevalence %>% select(genus, sarcoma) %>% filter(!is.na(sarcoma)) %>% arrange(sarcoma)
+sinonasal <- kraken_prevalence %>% select(genus, sinonasal) %>% filter(!is.na(sinonasal)) %>% arrange(sinonasal)
+testicular <- kraken_prevalence %>% select(genus, testicular) %>% filter(!is.na(testicular)) %>% arrange(testicular)
+uppergi <- kraken_prevalence %>% select(genus, uppergi) %>% filter(!is.na(uppergi)) %>% arrange(uppergi)
 
 
 
@@ -257,7 +255,7 @@ kraken_fig <- plot_ly(type='bar') %>%
       size=20,
       tickfont=list(size=18)),
     xaxis=list(
-      title='Number of Contigs',
+      title='Number of Samples',
       size=20,
       tickfont=list(size=18)),
     showlegend=FALSE,
@@ -359,7 +357,7 @@ kraken_fig
 Although reads with any similarity to the human genome have been removed prior to assembly, we see hundreds of thousands of assembled genomic fragments accross the entire dataset for a variety of genera. The most common of which in the whole dataset are for *Prevotella*, *Bacteroides*, *Treponema* and *Fusobacterium*.
 
 
-```{r, gelcontigs, out.width='100%', fig.asp=1, fig.height=20, message=FALSE, warning=FALSE}
+```{r, gelcontigs, fig.cap="Genus level classifications of contigs from metagenomic assembly of non-human reads within the 100,000 genomes project.", out.width='100%', fig.asp=1, fig.height=20, message=FALSE, warning=FALSE}
 #gelcontigs, animation.hook='gifski', fig.align='center', echo=FALSE, message=FALSE, warning=FALSE
 #out.width='100%', fig.asp=.75, fig.cap='Contigs in Genomics England'
 #contigs were filtered for the following contaminant genera and weird list + mammalia
@@ -682,25 +680,25 @@ contig_wider <- contig_data %>% pivot_wider(names_from=cancer, values_from=numbe
 
 colnames(contig_wider) <- gsub('all_cancers', 'allcancers', colnames(contig_wider))
 
-allcancers <- contig_wider %>% select(genus, allcancers) %>% filter(!is.na(allcancers)) %>% arrange(-allcancers)
-bladder <- contig_wider %>% select(genus, bladder) %>% filter(!is.na(bladder)) %>% arrange(-bladder)
-breast <- contig_wider %>% select(genus, breast) %>% filter(!is.na(breast)) %>% arrange(-breast)
-childhood <- contig_wider %>% select(genus, childhood) %>% filter(!is.na(childhood)) %>% arrange(-childhood)
-endocrine <- contig_wider %>% select(genus, endocrine) %>% filter(!is.na(endocrine)) %>% arrange(-endocrine)
-endometrial <- contig_wider %>% select(genus, endometrial) %>% filter(!is.na(endometrial)) %>% arrange(-endometrial)
-glioma <- contig_wider %>% select(genus, glioma) %>% filter(!is.na(glioma)) %>% arrange(-glioma)
-hepatopancreatobiliary <- contig_wider %>% select(genus, hepatopancreatobiliary) %>% filter(!is.na(hepatopancreatobiliary)) %>% arrange(-hepatopancreatobiliary)
-lung <- contig_wider %>% select(genus, lung) %>% filter(!is.na(lung)) %>% arrange(-lung)
-melanoma <- contig_wider %>% select(genus, melanoma) %>% filter(!is.na(melanoma)) %>% arrange(-melanoma)
-nasopharyngeal <- contig_wider %>% select(genus, nasopharyngeal) %>% filter(!is.na(nasopharyngeal)) %>% arrange(-nasopharyngeal)
-oral <- contig_wider %>% select(genus, oral) %>% filter(!is.na(oral)) %>% arrange(-oral)
-ovarian <- contig_wider %>% select(genus, ovarian) %>% filter(!is.na(ovarian)) %>% arrange(-ovarian)
-prostate <- contig_wider %>% select(genus, prostate) %>% filter(!is.na(prostate)) %>% arrange(-prostate)
-renal <- contig_wider %>% select(genus, renal) %>% filter(!is.na(renal)) %>% arrange(-renal)
-sarcoma <- contig_wider %>% select(genus, sarcoma) %>% filter(!is.na(sarcoma)) %>% arrange(-sarcoma)
-sinonasal <- contig_wider %>% select(genus, sinonasal) %>% filter(!is.na(sinonasal)) %>% arrange(-sinonasal)
-testicular <- contig_wider %>% select(genus, testicular) %>% filter(!is.na(testicular)) %>% arrange(-testicular)
-uppergi <- contig_wider %>% select(genus, uppergi) %>% filter(!is.na(uppergi)) %>% arrange(-uppergi)
+allcancers <- contig_wider %>% select(genus, allcancers) %>% filter(!is.na(allcancers)) %>% arrange(allcancers)
+bladder <- contig_wider %>% select(genus, bladder) %>% filter(!is.na(bladder)) %>% arrange(bladder)
+breast <- contig_wider %>% select(genus, breast) %>% filter(!is.na(breast)) %>% arrange(breast)
+childhood <- contig_wider %>% select(genus, childhood) %>% filter(!is.na(childhood)) %>% arrange(childhood)
+endocrine <- contig_wider %>% select(genus, endocrine) %>% filter(!is.na(endocrine)) %>% arrange(endocrine)
+endometrial <- contig_wider %>% select(genus, endometrial) %>% filter(!is.na(endometrial)) %>% arrange(endometrial)
+glioma <- contig_wider %>% select(genus, glioma) %>% filter(!is.na(glioma)) %>% arrange(glioma)
+hepatopancreatobiliary <- contig_wider %>% select(genus, hepatopancreatobiliary) %>% filter(!is.na(hepatopancreatobiliary)) %>% arrange(hepatopancreatobiliary)
+lung <- contig_wider %>% select(genus, lung) %>% filter(!is.na(lung)) %>% arrange(lung)
+melanoma <- contig_wider %>% select(genus, melanoma) %>% filter(!is.na(melanoma)) %>% arrange(melanoma)
+nasopharyngeal <- contig_wider %>% select(genus, nasopharyngeal) %>% filter(!is.na(nasopharyngeal)) %>% arrange(nasopharyngeal)
+oral <- contig_wider %>% select(genus, oral) %>% filter(!is.na(oral)) %>% arrange(oral)
+ovarian <- contig_wider %>% select(genus, ovarian) %>% filter(!is.na(ovarian)) %>% arrange(ovarian)
+prostate <- contig_wider %>% select(genus, prostate) %>% filter(!is.na(prostate)) %>% arrange(prostate)
+renal <- contig_wider %>% select(genus, renal) %>% filter(!is.na(renal)) %>% arrange(renal)
+sarcoma <- contig_wider %>% select(genus, sarcoma) %>% filter(!is.na(sarcoma)) %>% arrange(sarcoma)
+sinonasal <- contig_wider %>% select(genus, sinonasal) %>% filter(!is.na(sinonasal)) %>% arrange(sinonasal)
+testicular <- contig_wider %>% select(genus, testicular) %>% filter(!is.na(testicular)) %>% arrange(testicular)
+uppergi <- contig_wider %>% select(genus, uppergi) %>% filter(!is.na(uppergi)) %>% arrange(uppergi)
 
 
 contig_fig <- plot_ly(type='bar') %>% 
@@ -826,23 +824,22 @@ contig_fig
 ```
 
 
-
 # Conclusion
 
-Although the data overall is sparse and rife with potential contaminants, there are a range of interesting genera being reported accross cancer types in the Genomics England dataset by both SEPATH and by investigating metagenomic assembly of contigs. Some of these genera have previously been suggested to contribute to tumourigenesis.
-
-Despite using machine learning efforts to refine lists of informative taxa, our efforts so far have not been able to identify any form of obvious structure by cancer type. This is contradictory to recent publications and will be investigated further.
+Although the data overall is sparse and rife with potential contaminants, there are a range of interesting genera being reported accross cancer types by both SEPATH and by investigating assembled contigs. Some of these genera have previously been suggested to contribute to tumourigenesis.
 
 
 # Future Directions
 
-- This data will be interrogated further for any links with metadata.
-- The raw quality-trimmed and non-human reads have been mapped back to the contigs and this will be assessed as a second layer of information. 
-- These contigs will be subject to functional analysis to investigate the functional potential of pathogens that are being detected.
+Despite using machine learning efforts to refine lists of informative taxa, our efforts so far have not identified any obvious structure by cancer type. This is contradictory to recent publications[@Nejman2020; @Poore2020] and will be investigated further.
+
+- This data will be interrogated for associations with metadata.
+- The raw quality-trimmed and non-human reads have been mapped back to the contigs and this will be assessed as a second layer of information.
+- Contigs will be subject to analysis to investigate the functional potential of pathogens reported.
 
 # Final note
 
-This poster was produced in R using the [posterdown](https://github.com/brentthorne/posterdown) package. The github associated can be found at: [https://github.com/Agihawi/ncrn_poster](https://github.com/Agihawi/ncrn_poster)
+This poster was produced using [posterdown](https://github.com/brentthorne/posterdown). The associated GitHub can be found [here](https://github.com/Agihawi/ncrn_poster).
 
 ```{r, include=FALSE}
 knitr::write_bib(c('knitr','rmarkdown','posterdown','pagedown'), 'packages.bib')
